@@ -16,8 +16,11 @@ private class ControlStrip @Inject()(playlist: Playlist, randomSong: RandomSong)
   box.contents += Button("▶/❚❚") {playlist.playOrPause.fireAndForget()}
   box.contents += Button("■") {playlist.stop.fireAndForget()}
   box.contents += Button("⏩") {
-    val t = if (playlist.lastSong) randomSong.randomSong.flatMap(playlist.add) else Task.delay(Unit)
-    t.>>(playlist.next).fireAndForget()
+    val t: Task[Unit] = for {
+      _ <- randomSong.randomSong.flatMap(playlist.add)
+      _ <- playlist.next
+    } yield ()
+    t.fireAndForget()
   }
 
   _contents += box
