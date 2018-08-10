@@ -10,25 +10,28 @@ import scalaz.syntax.ToBindOps
 import scala.collection.mutable
 
 trait Playlist {
-
   def player: Player
 
+  def setIndex(index: Int): Task[Unit]
+  def removeIndex(index: Int): Task[Unit]
   def playCurrentSong: Task[Unit]
   def add(s: Song): Task[Unit]
   def songs: Seq[Song]
   def currentSong = songs(currentIndex)
 
   def isEmpty: Boolean = size == 0
-  def size: Int
+  def size: Int = songs.size
   def currentIndex: Int
 
-  def lastSong: Boolean = currentIndex == size - 1
+  def isLastSong: Boolean = currentIndex == size - 1
+  def isFirstSong: Boolean = currentIndex == 0
 
   def events: Observable[PlaylistEvent]
   def stop: Task[Unit]
   def playOrPause: Task[Unit]
 
   def next: Task[Unit]
+  def previous: Task[Unit]
 }
 
 object Playlist extends ToBindOps
@@ -37,6 +40,32 @@ object Playlist extends ToBindOps
     override val songs = new mutable.ArrayBuffer[Song]()
     private var _currentIndex = -1
     override def currentIndex = _currentIndex
+    private def checkIndex(i: Int): Unit =
+      if (i >= size || i < 0)
+        throw new IndexOutOfBoundsException(s"Invalid song index <$i>; total size is <$size>")
+    private def emitCurrentChanged: Unit =
+      observable.onNext(CurrentChanged(currentSong, _currentIndex))
+    override def setIndex(i: Int): Task[Unit] = {
+      checkIndex(i)
+      Task {
+        _currentIndex = i
+        emitCurrentChanged
+      }
+    }
+
+    override def removeIndex(i: Int): Task[Unit] = {
+      checkIndex(i)
+      if (size == 1)
+        throw new UnsupportedOperationException("No support for yet for removing a file without replacement")
+      val songRemoved = SongRemoved(songs(i), i)
+      if (currentIndex == i) (if (isLastSong) previous else next) >> removeIndex(i)
+      else
+        Task {
+          songs.remove(i)
+          if (i < currentIndex)
+            _currentIndex -= 1
+        } >| observable.onNext(songRemoved)
+    }
     override def playCurrentSong: Task[Unit] =
       if (_currentIndex < 0)
         throw new IllegalStateException("Requested play current song before any songs were added")
@@ -49,7 +78,6 @@ object Playlist extends ToBindOps
         _ <- next if _currentIndex < 0
       } yield ()
     }
-    override def size: Int = songs.size
     private val observable = Subject[PlaylistEvent]()
     override def events: Observable[PlaylistEvent] = observable
     override def stop = player.stop
@@ -57,7 +85,7 @@ object Playlist extends ToBindOps
 
     override def next = {
       val t = Task {
-        if (lastSong)
+        if (isLastSong)
           throw new IllegalStateException("Request next but playlist is already at last song")
         _currentIndex += 1
         assert(currentIndex <= size - 1)
@@ -66,7 +94,22 @@ object Playlist extends ToBindOps
 
       for {
         wasPlaying <- t
-        _ <- Task(observable.onNext(CurrentChanged(currentSong, currentIndex)))
+        _ = emitCurrentChanged
+        _ <- if (wasPlaying) playCurrentSong else player.setSource(currentSong)
+      } yield ()
+    }
+    override def previous = {
+      val t = Task {
+        if (isFirstSong)
+          throw new IllegalStateException("Request previous but playlist is already at first song")
+        _currentIndex -= 1
+        assert(currentIndex >= 0)
+        player.isPlaying
+      }
+
+      for {
+        wasPlaying <- t
+        _ = emitCurrentChanged
         _ <- if (wasPlaying) playCurrentSong else player.setSource(currentSong)
       } yield ()
     }

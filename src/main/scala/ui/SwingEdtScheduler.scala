@@ -9,7 +9,10 @@ import scala.swing.Swing
 object SwingEdtScheduler {
   private lazy val ecs = ExecutionContextScheduler(new ExecutionContext {
     override def execute(runnable: Runnable): Unit = Swing.onEDT(runnable.run())
-    override def reportFailure(cause: Throwable): Unit = ???
+    override def reportFailure(cause: Throwable): Unit = {
+      cause.printStackTrace()
+      ???
+    }
   })
   def apply(): Scheduler = ecs
 }

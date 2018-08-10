@@ -16,10 +16,10 @@ object RichTask {
   }
 
   implicit class richUnitTask($: Task[Unit]) {
-    // TODO log errors
     def fireAndForget(): Unit = $.unsafePerformAsync({
       case -\/(e) =>
         e.printStackTrace()
+        // TODO log errors
         throw e
       case \/-(_) => ()
     })

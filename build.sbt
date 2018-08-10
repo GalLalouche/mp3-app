@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   "io.reactivex" %% "rxscala" % "0.26.4",
   "org.me" %% "scalacommon" % "1.0" changing(),
   "org.scalamacros" % ("paradise_" + scalaVersionStr) % "2.1.0", // For some reason, it uses the full binary version
-  "org.scala-lang.modules" %% "scala-swing" % "2.0.0",
+  "org.scala-lang.modules" %% "scala-swing" % "2.0.3",
   "org.mockito" % "mockito-all" % "1.9.5" % "test",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
   "org.scalatest" %% "scalatest" % "3.0.4",

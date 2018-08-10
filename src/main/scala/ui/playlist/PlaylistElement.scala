@@ -5,12 +5,16 @@ import java.awt.{Dimension, Font}
 import javax.swing.BorderFactory
 import javax.swing.border.BevelBorder
 import player.Song
+import rx.lang.scala.{Observable, Subject}
 
 import scala.swing.Swing.HStrut
 import scala.swing.{BorderPanel, BoxPanel, Button, Label, Orientation}
 
-private class PlaylistElement(s: Song) extends BorderPanel {
+private class PlaylistElement(val s: Song) extends BorderPanel {
   import PlaylistElement._
+
+  private val subject: Subject[PlaylistElementEvent] = Subject()
+  def events: Observable[PlaylistElementEvent] = subject
 
   private val fullText = s"<html><b>${s.title}</b> by ${s.artistName} (${s.albumName}, ${s.track}, ${s.formattedLength}, ${s.bitrate}kbps)</html>"
   border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
@@ -22,7 +26,8 @@ private class PlaylistElement(s: Song) extends BorderPanel {
         font = baseFont.deriveFont(Font.BOLD)
       }
       contents += new Label(s" by ${s.artistName} (${s.albumName}, ${s.track}, ${s.formattedLength}, ${s.bitrate}kbps)") {
-        preferredSize = new Dimension(350, 35)
+        preferredSize = new Dimension(300, 35)
+        peer.setBounds(0, 0, 300, 35)
         font = baseFont
       }
       contents += HStrut(5)
@@ -30,11 +35,12 @@ private class PlaylistElement(s: Song) extends BorderPanel {
     BorderPanel.Position.West)
   add(
     new BoxPanel(Orientation.Horizontal) {
-      contents += Button("▶") {???}
+      contents += Button("▶") {subject.onNext(PlayElement(PlaylistElement.this))}
       contents += HStrut(5)
-      contents += Button("✖") {???}
+      contents += Button("✖") {subject.onNext(RemoveElement(PlaylistElement.this))}
     }, BorderPanel.Position.East)
 
+  revalidate()
   def highlight(): Unit = {
     border = BorderFactory.createBevelBorder(BevelBorder.LOWERED)
   }
@@ -42,7 +48,6 @@ private class PlaylistElement(s: Song) extends BorderPanel {
     border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
   }
   tooltip = fullText
-
 }
 
 private object PlaylistElement {

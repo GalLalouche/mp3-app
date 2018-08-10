@@ -2,26 +2,28 @@ package ui
 
 import comm.RandomSong
 import common.RichTask._
+import common.rich.func.{MoreObservableInstances, ToMoreApplicativeOps, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.playlist.Playlist
-import scalaz.concurrent.Task
-import scalaz.syntax.ToBindOps
+import player.playlist.{CurrentChanged, Playlist}
 
 import scala.swing.{BoxPanel, Button, Orientation, Panel}
 
 private class ControlStrip @Inject()(playlist: Playlist, randomSong: RandomSong) extends Panel
-    with ToBindOps {
-  private val box = new BoxPanel(Orientation.Horizontal)
+    with ToMoreApplicativeOps with ToMoreMonadPlusOps with MoreObservableInstances {
+  private val backwardsButton = Button("⏪") {playlist.previous unlessM playlist.isFirstSong fireAndForget()}
+  playlist.events.observeOn(SwingEdtScheduler()).select[CurrentChanged]
+      .map(_.index != 0)
+      .doOnNext(backwardsButton.enabled_=)
+      .subscribe()
 
-  box.contents += Button("▶/❚❚") {playlist.playOrPause.fireAndForget()}
-  box.contents += Button("■") {playlist.stop.fireAndForget()}
-  box.contents += Button("⏩") {
-    val t: Task[Unit] = for {
-      _ <- randomSong.randomSong.flatMap(playlist.add)
-      _ <- playlist.next
-    } yield ()
-    t.fireAndForget()
+  _contents += new BoxPanel(Orientation.Horizontal) {
+    contents ++= Seq(
+      backwardsButton,
+      Button("▶/❚❚") {playlist.playOrPause.fireAndForget()},
+      Button("■") {playlist.stop.fireAndForget()},
+      Button("⏩") {
+        randomSong.randomSong.flatMap(playlist.add).whenM(playlist.isLastSong) >> playlist.next fireAndForget()
+      },
+    )
   }
-
-  _contents += box
 }
