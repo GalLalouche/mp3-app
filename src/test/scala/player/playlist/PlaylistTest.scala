@@ -43,9 +43,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
     }
     "Emits SongAdded event" in {
       val song = mock[Song]
-      testObservableFirstValue($.events.select[SongAdded]) {
-        $.add(song).unsafePerformSync
-      }(_ shouldReturn SongAdded(song, 0))
+      testObservableFirstValue($.events.select[SongAdded])($.add(song))(_ shouldReturn SongAdded(song, 0))
     }
   }
 
@@ -64,7 +62,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
     "bind pipe" taggedAs regression("Incorrect if condition in for comprehension") in {
       val song = mock[Song]
       noException shouldBe thrownBy {
-        $.add(song).>>($.playCurrentSong).>>($.add(song)).>>($.next).unsafePerformSync
+        ($.add(song) >> $.playCurrentSong >> $.add(song) >> $.next).unsafePerformSync
       }
     }
     "throws if no next" in {
@@ -78,7 +76,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
       val song2 = mock[Song]
       $.add(song2).unsafePerformSync
       testObservableFirstValue(currentChangedEvents) {
-        $.next.unsafePerformSync
+        $.next
       }(_ shouldReturn CurrentChanged(song2, 1))
     }
   }
@@ -108,9 +106,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
       val song2 = mock[Song]
       $.add(song2).unsafePerformSync
       $.next.unsafePerformSync
-      testObservableFirstValue(currentChangedEvents) {
-        $.previous.unsafePerformSync
-      }(_ shouldReturn CurrentChanged(song, 0))
+      testObservableFirstValue(currentChangedEvents)($.previous)(_ shouldReturn CurrentChanged(song, 0))
     }
   }
 
@@ -129,9 +125,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
     }
     "emits an event when done" in {
       init()
-      testObservableFirstValue(currentChangedEvents) {
-        $.setIndex(1).unsafePerformSync
-      }(_ shouldReturn CurrentChanged(song2, 1))
+      testObservableFirstValue(currentChangedEvents)($.setIndex(1))(_ shouldReturn CurrentChanged(song2, 1))
     }
   }
 
@@ -175,21 +169,18 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
       "events" - {
         "after currentSong" in {
           init()
-          testObservableFirstValue($.events.select[SongRemoved]) {
-            $.removeIndex(2).unsafePerformSync
-          }(_ shouldReturn SongRemoved(song3, 2))
+          testObservableFirstValue($.events.select[SongRemoved])($.removeIndex(2))(
+            _ shouldReturn SongRemoved(song3, 2))
         }
         "before currentSong" in {
           init()
-          testObservableFirstValue($.events.select[SongRemoved]) {
-            $.removeIndex(0).unsafePerformSync
-          }(_ shouldReturn SongRemoved(song1, 0))
+          testObservableFirstValue($.events.select[SongRemoved])($.removeIndex(0))(
+            _ shouldReturn SongRemoved(song1, 0))
         }
         "currentSong" in {
           init()
-          testExpectedEvents($.events, exact = true) {
-            $.removeIndex(1).unsafePerformSync
-          }(Seq(SongRemoved(song2, 1), playlist.CurrentChanged(song3, 2)))
+          testExpectedEvents($.events, exact = true)($.removeIndex(1))(
+            Seq(SongRemoved(song2, 1), playlist.CurrentChanged(song3, 2)))
         }
       }
     }

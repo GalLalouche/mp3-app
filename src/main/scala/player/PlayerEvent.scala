@@ -33,3 +33,6 @@ object TimeChange {
 }
 
 case class SongChanged(newSong: Song) extends PlayerEvent
+case class PlayerStopped() extends PlayerEvent
+case class PlayerPaused() extends PlayerEvent
+case class PlayerPlaying() extends PlayerEvent

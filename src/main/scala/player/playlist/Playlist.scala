@@ -28,7 +28,6 @@ trait Playlist {
 
   def events: Observable[PlaylistEvent]
   def stop: Task[Unit]
-  def playOrPause: Task[Unit]
 
   def next: Task[Unit]
   def previous: Task[Unit]
@@ -81,7 +80,6 @@ object Playlist extends ToBindOps
     private val observable = Subject[PlaylistEvent]()
     override def events: Observable[PlaylistEvent] = observable
     override def stop = player.stop
-    override def playOrPause = player.playOrPause
 
     override def next = {
       val t = Task {

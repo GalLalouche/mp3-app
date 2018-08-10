@@ -10,5 +10,5 @@ private class TimeDisplay @Inject()(player: Player) extends Label
     with ToMoreMonadPlusOps with MoreObservableInstances {
   text = TimeChange(0, 0, 0).toDoubleDigitDisplay
 
-  player.events.select[TimeChange].doOnNext(tc => text = tc.toDoubleDigitDisplay).observeOn(SwingEdtScheduler()).subscribe()
+  player.events.observeOn(SwingEdtScheduler()).select[TimeChange].doOnNext(tc => text = tc.toDoubleDigitDisplay).subscribe()
 }
