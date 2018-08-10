@@ -2,6 +2,7 @@ package ui
 
 import common.RichTask._
 import javax.inject.Inject
+import ui.playlist.PlaylistPanel
 
 import scala.swing.{BoxPanel, Dimension, Orientation, Panel}
 

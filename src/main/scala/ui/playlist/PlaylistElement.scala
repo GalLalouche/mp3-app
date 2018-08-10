@@ -1,16 +1,17 @@
-package ui
+package ui.playlist
 
 import java.awt.{Dimension, Font}
 
 import javax.swing.BorderFactory
 import javax.swing.border.BevelBorder
 import player.Song
-import ui.PlaylistElement._
 
 import scala.swing.Swing.HStrut
 import scala.swing.{BorderPanel, BoxPanel, Button, Label, Orientation}
 
 private class PlaylistElement(s: Song) extends BorderPanel {
+  import PlaylistElement._
+
   private val fullText = s"<html><b>${s.title}</b> by ${s.artistName} (${s.albumName}, ${s.track}, ${s.formattedLength}, ${s.bitrate}kbps)</html>"
   border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
   preferredSize = new Dimension(600, 35)
@@ -41,6 +42,7 @@ private class PlaylistElement(s: Song) extends BorderPanel {
     border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
   }
   tooltip = fullText
+
 }
 
 private object PlaylistElement {

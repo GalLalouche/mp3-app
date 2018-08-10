@@ -1,14 +1,15 @@
-package ui
+package ui.playlist
 
 import comm.RandomSong
 import common.rich.func.ToMoreFunctorOps
 import javax.inject.Inject
 import player.playlist.{CurrentChanged, Playlist, SongAdded}
 import scalaz.concurrent.Task
+import ui.SwingEdtScheduler
 
 import scala.swing.{BoxPanel, Orientation, Panel}
 
-private class PlaylistPanel @Inject()(playlist: Playlist, randomSong: RandomSong) extends Panel
+private[ui] class PlaylistPanel @Inject()(playlist: Playlist, randomSong: RandomSong) extends Panel
     with ToMoreFunctorOps {
   private val box = new BoxPanel(Orientation.Vertical)
   _contents += box
