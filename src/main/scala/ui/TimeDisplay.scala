@@ -8,7 +8,7 @@ import scala.swing.Label
 
 private class TimeDisplay @Inject()(player: Player) extends Label
     with ToMoreMonadPlusOps with MoreObservableInstances {
-  text = TimeChange(0, 0, 0).toDoubleDigitDisplay
+  text = "00:00"
 
   player.events.observeOn(SwingEdtScheduler()).select[TimeChange].doOnNext(tc => text = tc.toDoubleDigitDisplay).subscribe()
 }

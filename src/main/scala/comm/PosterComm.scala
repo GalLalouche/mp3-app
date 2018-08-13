@@ -5,7 +5,7 @@ import java.io.ByteArrayInputStream
 
 import javax.imageio.ImageIO
 import javax.inject.Inject
-import player.Song
+import player.{LocalSong, RemoteSong, Song}
 import scalaz.concurrent.Task
 
 trait PosterComm {
@@ -13,8 +13,11 @@ trait PosterComm {
 }
 object PosterComm {
   class From @Inject()(communicator: Communicator) extends PosterComm {
-    override def poster(s: Song): Task[BufferedImage] =
-      communicator.getBytes(s.poster.replaceAll(" ", "%20"))
-          .map(bytes => ImageIO.read(new ByteArrayInputStream(bytes)).ensuring(_ != null))
+    override def poster(s: Song): Task[BufferedImage] = s match {
+      case e: LocalSong => Task(ImageIO.read(e.localPosterPath))
+      case e: RemoteSong =>
+        communicator.getBytes(e.poster.replaceAll(" ", "%20"))
+            .map(bytes => ImageIO.read(new ByteArrayInputStream(bytes)).ensuring(_ != null))
+    }
   }
 }

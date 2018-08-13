@@ -12,16 +12,17 @@ import org.scalatest.{FreeSpec, OneInstancePerTest}
 class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
     with MockitoSugar with OneInstancePerTest {
   private val sp = mock[StreamPlayer]
-  private val player = {
+  private val $ = {
     val c = mock[Communicator]
     when(c.path(Matchers.anyString)).thenReturn("http://localhost")
     new StreamPlayerWrapper(c, sp)
   }
+  private val song = mock[LocalSong]
+  when(song.totalLengthInMicroSeconds) thenReturn Long.MaxValue
 
   "Events" - {
     "setSource emits a SongChanged event" in {
-      val song = mock[Song]
-      testObservableFirstValue(player.events.select[SongChanged])(player.setSource(song))(
+      testObservableFirstValue($.events.select[SongChanged])($.setSource(song))(
         _.newSong shouldReturn song)
     }
 
@@ -32,7 +33,8 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
       f(captor.getValue)
     }
     "Time change events" in {
-      assertMinimumEvents(player.events.select[TimeChange], 3)(onListen(l => {
+      $.setSource(song).unsafePerformSync
+      assertMinimumEvents($.events.select[TimeChange], 3)(onListen(l => {
         l.progress(0, 2e6.toInt, Array(), Collections.emptyMap())
         l.progress(0, 1e6.toInt, Array(), Collections.emptyMap())
         l.progress(0, (1e6 * (3600 + (60 * 42) + 56)).toInt, Array(), Collections.emptyMap())
@@ -40,7 +42,7 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
     }
 
     def checkSingleEventPropagation[E <: PlayerEvent : Manifest](s: Status): Unit =
-      assertMinimumEvents(player.events.select[E], 1)(
+      assertMinimumEvents($.events.select[E], 1)(
         onListen(_.statusUpdated(new StreamPlayerEvent(null, s, 0, null))))
     "Stop" in checkSingleEventPropagation[PlayerStopped](Status.STOPPED)
     "Pause" in checkSingleEventPropagation[PlayerPaused](Status.PAUSED)
@@ -50,10 +52,10 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
 
   "setVolume" - {
     "passes volume before playing" in {
-      player.setVolume(0.5).unsafePerformSync
+      $.setVolume(0.5).unsafePerformSync
       // First volume is set, in case sp is playing
       verify(sp).setGain(0.5)
-      player.setSource(mock[Song]).>>(player.play).unsafePerformSync
+      $.setSource(song).>>($.play).unsafePerformSync
       // Set again, because sp is stupid
       verify(sp, times(2)).setGain(0.5)
     }

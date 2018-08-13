@@ -21,11 +21,12 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
   def stop: Task[Unit] = Task(sp.stop()) unlessM isStopped
 
   private val observable = Subject[PlayerEvent]()
+  private var currentSong: Song = _
 
   sp.addStreamPlayerListener(new StreamPlayerListener {
     override def opened(dataSource: scala.Any, properties: util.Map[String, AnyRef]): Unit = ()
     override def progress(nEncodedBytes: Int, microsecondPosition: Long, pcmData: Array[Byte], properties: util.Map[String, AnyRef]): Unit =
-      observable.onNext(TimeChange.fromMicrosecond(microsecondPosition))
+      observable.onNext(TimeChange(microsecondPosition, currentSong.totalLengthInMicroSeconds))
     override def statusUpdated(event: StreamPlayerEvent): Unit = {
       (event.getPlayerStatus match {
         case Status.PAUSED => Some(PlayerPaused())
@@ -37,7 +38,11 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
   })
   private var volume: Double = _
   private def trySetSource(s: Song): Task[Unit] = Task(try {
-    sp.open(new URL(c.path(s.path)))
+    s match {
+      case e: LocalSong => sp.open(e.file)
+      case e: RemoteSong => sp.open(new URL(c.path(e.path)))
+    }
+    currentSong = s
   } catch {
     case e: IllegalArgumentException =>
       println(s"Failed to set source for <$s>")

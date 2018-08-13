@@ -1,28 +1,56 @@
 package player
 
+import java.io.File
+
 import spray.json._
 
-case class Song(
-    title: String,
-    artistName: String,
-    albumName: String,
-    track: Int,
-    year: Int,
-    bitrate: String,
-    duration: Int, // in seconds
-    size: Long, // In bytes
-    trackGain: Double,
+sealed trait Song {
+  def title: String
+  def artistName: String
+  def albumName: String
+  def track: Int
+  def year: Int
+  def bitrate: String
+  def duration: Int // in seconds
+  def size: Long // In bytes
+  def trackGain: Double
+
+  def totalLengthInMicroSeconds: Long = duration * 1e6.toLong
+  // TODO solve this less hackishly
+  def formattedLength: String = TimeChange(totalLengthInMicroSeconds, Long.MaxValue).toDoubleDigitDisplay
+}
+
+case class RemoteSong(
+    override val title: String,
+    override val artistName: String,
+    override val albumName: String,
+    override val track: Int,
+    override val year: Int,
+    override val bitrate: String,
+    override val duration: Int, // in seconds
+    override val size: Long, // In bytes
+    override val trackGain: Double,
     poster: String,
     mp3: Option[String],
     flac: Option[String],
-) {
-  // TODO solve this less hackishly
-  def formattedLength: String =
-    TimeChange.fromMicrosecond(duration * 1e6.toLong).toDoubleDigitDisplay
-
+) extends Song {
   def path: String = mp3.orElse(flac).get
 }
 
-object Song extends DefaultJsonProtocol {
-  implicit val jsonReaderEv: JsonReader[Song] = jsonFormat12(Song.apply)
+object RemoteSong extends DefaultJsonProtocol {
+  implicit val jsonReaderEv: JsonReader[RemoteSong] = jsonFormat12(RemoteSong.apply)
 }
+
+case class LocalSong(
+    override val title: String,
+    override val artistName: String,
+    override val albumName: String,
+    override val track: Int,
+    override val year: Int,
+    override val bitrate: String,
+    override val duration: Int, // in seconds
+    override val size: Long, // In bytes
+    override val trackGain: Double,
+    file: File,
+    localPosterPath: File,
+) extends Song
