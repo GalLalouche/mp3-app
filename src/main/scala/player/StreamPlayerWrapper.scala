@@ -29,9 +29,9 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
       observable.onNext(TimeChange(microsecondPosition, currentSong.totalLengthInMicroSeconds))
     override def statusUpdated(event: StreamPlayerEvent): Unit = {
       (event.getPlayerStatus match {
-        case Status.PAUSED => Some(PlayerPaused())
-        case Status.STOPPED => Some(PlayerStopped())
-        case Status.PLAYING | Status.RESUMED => Some(PlayerPlaying())
+        case Status.PAUSED => Some(PlayerPaused)
+        case Status.STOPPED => Some(PlayerStopped)
+        case Status.PLAYING | Status.RESUMED => Some(PlayerPlaying)
         case _ => None
       }).foreach(observable.onNext)
     }

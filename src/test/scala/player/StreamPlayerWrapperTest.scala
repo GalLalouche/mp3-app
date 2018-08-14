@@ -41,13 +41,13 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
       }))
     }
 
-    def checkSingleEventPropagation[E <: PlayerEvent : Manifest](s: Status): Unit =
-      assertMinimumEvents($.events.select[E], 1)(
+    def checkSingleEventPropagation(s: Status, playerEvent: PlayerEvent): Unit =
+      assertMinimumEvents($.events.filter(_ == playerEvent), 1)(
         onListen(_.statusUpdated(new StreamPlayerEvent(null, s, 0, null))))
-    "Stop" in checkSingleEventPropagation[PlayerStopped](Status.STOPPED)
-    "Pause" in checkSingleEventPropagation[PlayerPaused](Status.PAUSED)
-    "Play" in checkSingleEventPropagation[PlayerPlaying](Status.PLAYING)
-    "Resume" in checkSingleEventPropagation[PlayerPlaying](Status.RESUMED)
+    "Stop" in checkSingleEventPropagation(Status.STOPPED, PlayerStopped)
+    "Pause" in checkSingleEventPropagation(Status.PAUSED, PlayerPaused)
+    "Play" in checkSingleEventPropagation(Status.PLAYING, PlayerPlaying)
+    "Resume" in checkSingleEventPropagation(Status.RESUMED, PlayerPlaying)
   }
 
   "setVolume" - {

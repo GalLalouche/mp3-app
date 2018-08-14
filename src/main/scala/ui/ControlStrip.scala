@@ -21,12 +21,12 @@ private class ControlStrip @Inject()(playlist: Playlist, randomSong: RandomSong)
 
   val playButton = Button("▶/❚❚") {???}
   player.events.observeOn(SwingEdtScheduler()).doOnNext {
-    case PlayerStopped() | PlayerPaused() =>
+    case PlayerStopped | PlayerPaused =>
       playButton.action = Action.apply("▶") {
         assert(player.isPaused || player.isStopped)
         player.play.fireAndForget()
       }
-    case PlayerPlaying() =>
+    case PlayerPlaying =>
       playButton.action = Action.apply("❚❚") {
         assert(player.isPlaying)
         player.pause.fireAndForget()
