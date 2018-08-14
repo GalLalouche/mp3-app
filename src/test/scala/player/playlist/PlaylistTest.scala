@@ -6,11 +6,11 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, OneInstancePerTest}
-import player.{Player, Song, playlist}
+import player.{AudioPlayer, Song, playlist}
 import scalaz.concurrent.Task
 
 class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest with MockitoSugar {
-  private val player = mock[Player]
+  private val player = mock[AudioPlayer]
   when(player.setSource(any())) thenReturn Task.now(())
   when(player.stop) thenReturn Task.now(())
   when(player.play) thenReturn Task.now(())

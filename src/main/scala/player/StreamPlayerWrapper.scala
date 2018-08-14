@@ -14,13 +14,13 @@ import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.{ToApplicativeOps, ToBindOps}
 
-class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) extends Player
+class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) extends AudioPlayer
     with ToMoreFunctorOps with ToApplicativeOps with ToBindOps {
   @Inject() def this(c: Communicator) = this(c, new StreamPlayer)
   Logger.getLogger("main.java.goxr3plus").setLevel(Level.WARNING)
   def stop: Task[Unit] = Task(sp.stop()) unlessM isStopped
 
-  private val observable = Subject[PlayerEvent]()
+  private val observable = Subject[AudioPlayerEvent]()
   private var currentSong: Song = _
 
   sp.addStreamPlayerListener(new StreamPlayerListener {
@@ -64,6 +64,6 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
     sp.setGain(f)
     volume = f
   }
-  override def events: Observable[PlayerEvent] = observable
+  override def events: Observable[AudioPlayerEvent] = observable
   override def isPlaying: Boolean = sp.isPlaying
 }

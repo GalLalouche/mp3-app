@@ -5,11 +5,11 @@ import common.RichTask._
 import common.SwingUtils._
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.{Player, SongChanged}
+import player.{AudioPlayer, SongChanged}
 
 import scala.swing.{Dimension, Label}
 
-class PosterComponent @Inject()(player: Player, posterComm: PosterComm) extends Label
+class PosterComponent @Inject()(player: AudioPlayer, posterComm: PosterComm) extends Label
     with ToMoreMonadPlusOps with MoreObservableInstances {
   private val SideLengthInPixels = 500
   preferredSize = new Dimension(SideLengthInPixels, SideLengthInPixels)

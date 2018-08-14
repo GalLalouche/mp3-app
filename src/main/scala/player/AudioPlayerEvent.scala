@@ -2,9 +2,9 @@ package player
 
 import java.time.Duration
 
-sealed trait PlayerEvent
+sealed trait AudioPlayerEvent
 
-class TimeChange(private val currentTimeInMicroSeconds: Long, totalTimeInMicroSeconds: Long) extends PlayerEvent {
+class TimeChange(private val currentTimeInMicroSeconds: Long, totalTimeInMicroSeconds: Long) extends AudioPlayerEvent {
   def diffFrom(other: TimeChange): Duration =
     Duration.ofMillis((currentTimeInMicroSeconds - other.currentTimeInMicroSeconds) * 1000)
 
@@ -39,8 +39,8 @@ object TimeChange {
     new TimeChange(currentTimeInMicroSeconds, totalTimeInMicroSeconds)
 }
 
-case class SongChanged(newSong: Song) extends PlayerEvent
-object SongFinished extends PlayerEvent
-object PlayerStopped extends PlayerEvent
-object PlayerPaused extends PlayerEvent
-object PlayerPlaying extends PlayerEvent
+case class SongChanged(newSong: Song) extends AudioPlayerEvent
+object SongFinished extends AudioPlayerEvent
+object PlayerStopped extends AudioPlayerEvent
+object PlayerPaused extends AudioPlayerEvent
+object PlayerPlaying extends AudioPlayerEvent

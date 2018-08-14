@@ -5,13 +5,13 @@ import common.RichTask._
 import common.rich.func.{MoreObservableInstances, ToMoreApplicativeOps, ToMoreMonadPlusOps}
 import javax.inject.Inject
 import player.playlist.{CurrentChanged, Playlist}
-import player.{Player, PlayerPaused, PlayerPlaying, PlayerStopped}
+import player.{AudioPlayer, PlayerPaused, PlayerPlaying, PlayerStopped}
 
 import scala.swing.{Action, BoxPanel, Button, Orientation, Panel}
 
 private class ControlStrip @Inject()(playlist: Playlist, randomSong: RandomSong) extends Panel
     with ToMoreApplicativeOps with ToMoreMonadPlusOps with MoreObservableInstances {
-  private val player: Player = playlist.player
+  private val player: AudioPlayer = playlist.player
 
   private val backwardsButton = Button("⏪") {playlist.previous unlessM playlist.isFirstSong fireAndForget()}
   playlist.events.observeOn(SwingEdtScheduler()).select[CurrentChanged]

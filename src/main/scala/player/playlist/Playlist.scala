@@ -2,15 +2,16 @@ package player.playlist
 
 import common.rich.func.{ToMoreApplicativeOps, ToMoreFunctorOps}
 import javax.inject.Inject
-import player.{Player, Song}
+import player.{AudioPlayer, Song}
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 
 import scala.collection.mutable
 
+
 trait Playlist {
-  def player: Player
+  def player: AudioPlayer
 
   def setIndex(index: Int): Task[Unit]
   def removeIndex(index: Int): Task[Unit]
@@ -35,7 +36,7 @@ trait Playlist {
 
 object Playlist extends ToBindOps
     with ToMoreFunctorOps with ToMoreApplicativeOps {
-  class From @Inject()(override val player: Player) extends Playlist {
+  class From @Inject()(override val player: AudioPlayer) extends Playlist {
     override val songs = new mutable.ArrayBuffer[Song]()
     private var _currentIndex = -1
     override def currentIndex = _currentIndex
