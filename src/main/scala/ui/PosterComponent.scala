@@ -1,6 +1,7 @@
 package ui
 
 import comm.PosterComm
+import common.IOPool
 import common.RichTask._
 import common.SwingUtils._
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}

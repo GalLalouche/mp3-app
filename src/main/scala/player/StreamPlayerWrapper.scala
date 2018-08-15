@@ -1,32 +1,31 @@
 package player
 
 import java.net.URL
-
-import common.rich.primitives.RichBoolean._
 import java.util
 import java.util.logging.{Level, Logger}
 
 import comm.Communicator
 import common.rich.func.ToMoreFunctorOps
+import common.rich.primitives.RichBoolean._
 import javax.inject.Inject
 import main.java.goxr3plus.javastreamplayer.stream.{Status, StreamPlayer, StreamPlayerEvent, StreamPlayerListener}
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.{ToApplicativeOps, ToBindOps}
 
-class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) extends AudioPlayer
+private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) extends AudioPlayer
     with ToMoreFunctorOps with ToApplicativeOps with ToBindOps {
   @Inject() def this(c: Communicator) = this(c, new StreamPlayer)
   Logger.getLogger("main.java.goxr3plus").setLevel(Level.WARNING)
   def stop: Task[Unit] = Task(sp.stop()) unlessM isStopped
 
   private val observable = Subject[AudioPlayerEvent]()
-  private var currentSong: Song = _
+  var source: Song = _
 
   sp.addStreamPlayerListener(new StreamPlayerListener {
     override def opened(dataSource: scala.Any, properties: util.Map[String, AnyRef]): Unit = ()
     override def progress(nEncodedBytes: Int, microsecondPosition: Long, pcmData: Array[Byte], properties: util.Map[String, AnyRef]): Unit =
-      observable.onNext(TimeChange(microsecondPosition, currentSong.totalLengthInMicroSeconds))
+      observable.onNext(TimeChange(microsecondPosition, source.totalLengthInMicroSeconds))
     override def statusUpdated(event: StreamPlayerEvent): Unit = {
       (event.getPlayerStatus match {
         case Status.PAUSED => Some(PlayerPaused)
@@ -42,7 +41,7 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
       case e: LocalSong => sp.open(e.file)
       case e: RemoteSong => sp.open(new URL(c.path(e.path)))
     }
-    currentSong = s
+    source = s
   } catch {
     case e: IllegalArgumentException =>
       println(s"Failed to set source for <$s>")
@@ -66,4 +65,11 @@ class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPlayer) ext
   }
   override def events: Observable[AudioPlayerEvent] = observable
   override def isPlaying: Boolean = sp.isPlaying
+  override def status: PlayerStatus = sp.getStatus match {
+    case Status.PLAYING | Status.RESUMED | Status.SEEKED | Status.SEEKING | Status.BUFFERING => Playing
+    case Status.STOPPED | Status.EOM | Status.OPENED => Stopped
+    case Status.PAUSED => Paused
+    case Status.INIT => Initial
+    case _ => ???
+  }
 }

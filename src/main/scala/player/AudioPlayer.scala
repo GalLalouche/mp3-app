@@ -6,6 +6,8 @@ import scalaz.concurrent.Task
 /** Low level API for playing audio. */
 trait AudioPlayer {
   def setSource(s: Song): Task[Unit]
+  def source: Song
+
   def setVolume(f: Double): Task[Unit]
   def isPaused: Boolean
   def isPlaying: Boolean
@@ -16,4 +18,5 @@ trait AudioPlayer {
   def stop: Task[Unit]
 
   def events: Observable[AudioPlayerEvent]
+  def status: PlayerStatus
 }
