@@ -4,11 +4,13 @@ import common.rich.RichT._
 import common.rich.primitives.RichBoolean._
 import javax.inject.Inject
 import scalaz.concurrent.Task
+import spray.json.{JsonReader, enrichString}
 
 trait Communicator {
   def path(remotePath: String): String
   def getBytes(path: String): Task[Array[Byte]]
   def getString(path: String): Task[String] = getBytes(path).map(new String(_, "UTF-8"))
+  def parseJson[A: JsonReader](path: String): Task[A] = getString(path).map(_.parseJson.convertTo[A])
 }
 
 object Communicator {

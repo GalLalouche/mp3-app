@@ -3,7 +3,6 @@ package comm
 import javax.inject.Inject
 import player.{RemoteSong, Song, SongFetcher}
 import scalaz.concurrent.Task
-import spray.json._
 
 trait RandomSong extends SongFetcher {
   override def apply: Task[Song]
@@ -11,6 +10,6 @@ trait RandomSong extends SongFetcher {
 
 object RandomSong {
   class From @Inject()(c: Communicator) extends RandomSong {
-    override def apply: Task[Song] = c.getString("data/randomSong/flac").map(_.parseJson.convertTo[RemoteSong])
+    override def apply: Task[Song] = c.parseJson[RemoteSong]("data/randomSong/flac")
   }
 }
