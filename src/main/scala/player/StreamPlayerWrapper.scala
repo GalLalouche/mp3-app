@@ -19,7 +19,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
   Logger.getLogger("main.java.goxr3plus").setLevel(Level.WARNING)
   def stop: Task[Unit] = Task(sp.stop()) unlessM isStopped
 
-  private val observable = Subject[AudioPlayerEvent]()
+  private val observable = Subject[PlayerEvent]()
   var source: Song = _
 
   sp.addStreamPlayerListener(new StreamPlayerListener {
@@ -63,7 +63,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
     sp.setGain(f)
     volume = f
   }
-  override def events: Observable[AudioPlayerEvent] = observable
+  override def events: Observable[PlayerEvent] = observable
   override def isPlaying: Boolean = sp.isPlaying
   override def status: PlayerStatus = sp.getStatus match {
     case Status.PLAYING | Status.RESUMED | Status.SEEKED | Status.SEEKING | Status.BUFFERING => Playing

@@ -205,7 +205,7 @@ object MutablePlayerImplTest {
     }
     override def pause: Task[Unit] = Task(status = Paused).void
     override def stop: Task[Unit] = Task(status = Stopped).void
-    override def events: Observable[AudioPlayerEvent] = Subject()
+    override def events: Observable[PlayerEvent] = Subject()
     var status: PlayerStatus = _
   }
 }

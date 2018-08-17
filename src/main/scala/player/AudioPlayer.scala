@@ -17,6 +17,6 @@ trait AudioPlayer {
   def togglePause: Task[Unit] = if (isPaused) play else pause
   def stop: Task[Unit]
 
-  def events: Observable[AudioPlayerEvent]
+  def events: Observable[PlayerEvent]
   def status: PlayerStatus
 }

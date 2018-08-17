@@ -19,6 +19,8 @@ private class MutablePlayerImpl(
   private val subject = Subject[PlayerEvent]()
   override val events: Observable[PlayerEvent] = subject.observeOn(IOPool.scheduler)
 
+  audioPlayer.events.doOnNext(subject.onNext).subscribe()
+
   override def setIndex(index: Int): Task[Unit] =
     if (index < 0) throw new IndexOutOfBoundsException(s"Invalid index <$index>")
     else stop >> updatePlaylist(_ setIndex index) >| emitCurrentChanged()

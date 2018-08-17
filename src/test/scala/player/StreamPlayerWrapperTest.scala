@@ -41,7 +41,7 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
       }))
     }
 
-    def checkSingleEventPropagation(s: Status, playerEvent: AudioPlayerEvent): Unit =
+    def checkSingleEventPropagation(s: Status, playerEvent: PlayerEvent): Unit =
       assertMinimumEvents($.events.filter(_ == playerEvent), 1)(
         onListen(_.statusUpdated(new StreamPlayerEvent(null, s, 0, null))))
     "Stop" in checkSingleEventPropagation(Status.STOPPED, PlayerStopped)
