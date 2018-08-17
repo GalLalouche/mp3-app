@@ -1,5 +1,6 @@
 package player
 
+import player.pkg.PackagedAlbum
 import rx.lang.scala.Observable
 import scalaz.concurrent.Task
 
@@ -17,6 +18,7 @@ trait MutablePlayer {
   /** Resumes if paused. */
   def playCurrentSong: Task[Unit]
   def add(s: Song): Task[Unit]
+  def add(pkg: PackagedAlbum): Task[Unit]
   def songs: Seq[Song] = playlist.songs
   def currentSong: Song = ifInitialized(songs(currentIndex))
 

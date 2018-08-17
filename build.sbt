@@ -31,6 +31,7 @@ libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.4",
   "com.google.inject" % "guice" % "4.2.0",
   "net.codingwell" %% "scala-guice" % "4.2.1",
+  "my.net.jthink" % "jaudiotagger" % "2.2.6-SNAPSHOT",
 )
 
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4")

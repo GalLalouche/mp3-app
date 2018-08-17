@@ -1,17 +1,19 @@
 package player
 
 import common.IOPool
+import common.rich.func.{MoreTraverseInstances, ToMoreApplicativeOps}
 import javax.inject.Inject
+import player.pkg.PackagedAlbum
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
-import scalaz.syntax.{ToBindOps, ToMonadOps}
+import scalaz.syntax.{ToMonadOps, ToTraverseOps}
 
 private class MutablePlayerImpl @Inject()(
     audioPlayer: AudioPlayer,
     var playlist: UpdatablePlaylist,
     songFetcher: SongFetcher,
 ) extends MutablePlayer
-    with ToMonadOps with ToBindOps {
+    with ToMonadOps with ToTraverseOps with ToMoreApplicativeOps with MoreTraverseInstances {
   private def emitStatus() = subject.onNext(StatusChanged(status))
   private def emitCurrentChanged() = subject.onNext(CurrentChanged(currentSong, currentIndex))
   private def updatePlaylist(f: UpdatablePlaylist => UpdatablePlaylist): Task[Unit] =
@@ -29,8 +31,15 @@ private class MutablePlayerImpl @Inject()(
     assert(audioPlayer.source == currentSong)
     (audioPlayer.play >| emitStatus()).unlessM(status == Playing)
   }
-  override def add(s: Song): Task[Unit] =
-    audioPlayer.setSource(s).whenM(isEmpty) >> updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
+  override def add(s: Song): Task[Unit] = {
+    // TODO add this in ToMoreApplicativeOps
+    val t: Task[Unit] = for {
+      empty <- Task.delay(isEmpty)
+      _ <- audioPlayer.setSource(s) if empty
+    } yield ()
+    t >> updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
+  }
+  override def add(pkg: PackagedAlbum): Task[Unit] = pkg.songs.toList.map(add).sequenceU.void
   override def stop: Task[Unit] = audioPlayer.stop >| emitStatus
   override def pause: Task[Unit] = audioPlayer.pause >| emitStatus
   override def next: Task[Unit] = {

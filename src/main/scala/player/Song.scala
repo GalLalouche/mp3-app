@@ -13,7 +13,7 @@ sealed trait Song {
   def bitrate: String
   def duration: Int // in seconds
   def size: Long // In bytes
-  def trackGain: Double
+  def trackGain: Option[Double]
 
   def totalLengthInMicroSeconds: Long = duration * 1e6.toLong
   // TODO solve this less hackishly
@@ -29,7 +29,7 @@ case class RemoteSong(
     override val bitrate: String,
     override val duration: Int, // in seconds
     override val size: Long, // In bytes
-    override val trackGain: Double,
+    override val trackGain: Option[Double],
     poster: String,
     mp3: Option[String],
     flac: Option[String],
@@ -50,7 +50,8 @@ case class LocalSong(
     override val bitrate: String,
     override val duration: Int, // in seconds
     override val size: Long, // In bytes
-    override val trackGain: Double,
+    override val trackGain: Option[Double],
     file: File,
     localPosterPath: File,
+    remotePath: String,
 ) extends Song

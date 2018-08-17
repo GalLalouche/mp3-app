@@ -6,6 +6,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 import player.MutablePlayerImplTest.FakePlayer
+import player.pkg.PackagedAlbum
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.ToFunctorOps
@@ -83,6 +84,13 @@ class MutablePlayerImplTest extends FreeSpec with ObservableSpecs with MockitoSu
       val song2 = mock[Song]
       $.add(song2).unsafePerformSync
       testObservableFirstValue($.events.select[CurrentChanged])($.next)(_ shouldReturn CurrentChanged(song2, 1))
+    }
+
+    "Multiple songs" in {
+      val firstSong = mock[LocalSong]
+      $.add(PackagedAlbum(Seq(firstSong, mock[LocalSong]))).unsafePerformSync
+      $.currentIndex shouldReturn 0
+      audioPlayer.source shouldReturn firstSong
     }
   }
 
