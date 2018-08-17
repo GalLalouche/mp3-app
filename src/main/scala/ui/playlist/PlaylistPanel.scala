@@ -8,15 +8,14 @@ import common.rich.collections.RichSeq._
 import common.rich.func.ToMoreFunctorOps
 import javax.inject.Inject
 import javax.swing.BorderFactory
-import player.{CurrentChanged, Song, SongAdded, SongRemoved}
-import player.playlist.Playlist
+import player.{CurrentChanged, MutablePlayer, Song, SongAdded, SongRemoved}
 import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 import ui.SwingEdtScheduler
 
 import scala.swing.{BoxPanel, Orientation, Panel}
 
-private[ui] class PlaylistPanel @Inject()(playlist: Playlist, randomSong: RandomSong) extends Panel
+private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, randomSong: RandomSong) extends Panel
     with ToMoreFunctorOps with ToBindOps {
   private val box = new BoxPanel(Orientation.Vertical)
   _contents += box
@@ -35,8 +34,7 @@ private[ui] class PlaylistPanel @Inject()(playlist: Playlist, randomSong: Random
       element.events.doOnNext({
         case PlayElement(source) =>
           (playlist.setIndex(indexOf(source)) >> playlist.stop >> playlist.playCurrentSong).fireAndForget()
-        case RemoveElement(source) =>
-          playlist.removeIndex(indexOf(source)).fireAndForget()
+        case RemoveElement(source) => ???
       }).subscribe()
       element +=: box.contents
       box.revalidate()
@@ -52,8 +50,8 @@ private[ui] class PlaylistPanel @Inject()(playlist: Playlist, randomSong: Random
   def start(): Task[Unit] = {
     assert(playlist.isEmpty)
     for {
-      _ <- playlist.player.setVolume(0.0)
-      song <- randomSong.randomSong
+      _ <- playlist.setVolume(0.0)
+      song <- randomSong.apply
       _ <- playlist.add(song)
       _ <- playlist.playCurrentSong
     } yield ()

@@ -56,15 +56,15 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
     sp.setGain(volume)
   } unlessM isPlaying
   override def pause: Task[Unit] = Task(sp.pause()) unlessM isPaused
-  override def isPaused: Boolean = sp.isPaused
-  override def isStopped: Boolean = sp.isStopped
   override def setVolume(f: Double): Task[Unit] = Task {
     require(f >= 0 && f <= 1)
     sp.setGain(f)
     volume = f
   }
   override def events: Observable[PlayerEvent] = observable
-  override def isPlaying: Boolean = sp.isPlaying
+  private def isPlaying: Boolean = sp.isPlaying
+  private def isPaused: Boolean = sp.isPaused
+  private def isStopped: Boolean = sp.isStopped
   override def status: PlayerStatus = sp.getStatus match {
     case Status.PLAYING | Status.RESUMED | Status.SEEKED | Status.SEEKING | Status.BUFFERING => Playing
     case Status.STOPPED | Status.EOM | Status.OPENED => Stopped

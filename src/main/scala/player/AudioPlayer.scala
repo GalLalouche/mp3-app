@@ -9,12 +9,9 @@ trait AudioPlayer {
   def source: Song
 
   def setVolume(f: Double): Task[Unit]
-  def isPaused: Boolean = status == Paused
-  def isPlaying: Boolean = status == Playing
-  def isStopped: Boolean = status == Stopped
   def play: Task[Unit]
   def pause: Task[Unit]
-  def togglePause: Task[Unit] = if (isPaused) play else pause
+  def togglePause: Task[Unit] = if (status == Paused) play else pause
   def stop: Task[Unit]
 
   def events: Observable[PlayerEvent]

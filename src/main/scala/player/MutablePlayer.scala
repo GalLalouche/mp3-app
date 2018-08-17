@@ -28,9 +28,15 @@ trait MutablePlayer {
   def isFirstSong: Boolean = ifInitialized(playlist.isFirstSong)
 
   def stop: Task[Unit]
+  def pause: Task[Unit]
   /** Will try to append a new song if at the end of the playlist. */
   def next: Task[Unit]
   def previous: Task[Unit]
 
   def status: PlayerStatus
+  def isPaused: Boolean = status == Paused
+  def isPlaying: Boolean = status == Playing
+  def isStopped: Boolean = status == Stopped
+
+  def setVolume(d: Double): Task[Unit]
 }

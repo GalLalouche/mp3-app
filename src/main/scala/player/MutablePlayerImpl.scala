@@ -31,6 +31,7 @@ private class MutablePlayerImpl(
   override def add(s: Song): Task[Unit] =
     audioPlayer.setSource(s).whenM(isEmpty) >> updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
   override def stop: Task[Unit] = audioPlayer.stop >| emitStatus
+  override def pause: Task[Unit] = audioPlayer.pause >| emitStatus
   override def next: Task[Unit] = {
     val wasPlaying = status == Playing
     if (playlist.isLastSong)
@@ -41,6 +42,6 @@ private class MutablePlayerImpl(
 
   override def previous: Task[Unit] = updatePlaylist(_.previous) >| emitCurrentChanged()
   override def status: PlayerStatus = audioPlayer.status
+
+  override def setVolume(d: Double) = audioPlayer.setVolume(d)
 }
-
-
