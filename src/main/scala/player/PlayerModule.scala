@@ -1,7 +1,8 @@
 package player
 
-import com.google.inject.Singleton
+import com.google.inject.{Provides, Singleton}
 import net.codingwell.scalaguice.ScalaModule
+import rx.lang.scala.Observable
 
 object PlayerModule extends ScalaModule {
   override def configure(): Unit = {
@@ -11,4 +12,7 @@ object PlayerModule extends ScalaModule {
 
     requireBinding(classOf[SongFetcher])
   }
+
+  @Provides
+  def providePlayerEventObservable(mp: MutablePlayer): Observable[PlayerEvent] = mp.events
 }

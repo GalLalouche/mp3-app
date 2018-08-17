@@ -3,6 +3,7 @@ package modules
 import com.google.inject.Singleton
 import comm.{Communicator, InternetTalker, PosterComm, RandomSong, ScalaJTalker, ServerAddress}
 import net.codingwell.scalaguice.ScalaModule
+import player.pkg.PkgModule
 import player.{PlayerModule, SongFetcher}
 
 object GuiceModule extends ScalaModule {
@@ -14,5 +15,6 @@ object GuiceModule extends ScalaModule {
     bind[PosterComm].to[PosterComm.From].in[Singleton]
 
     install(PlayerModule)
+    install(PkgModule)
   }
 }
