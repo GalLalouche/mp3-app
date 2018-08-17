@@ -6,7 +6,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, OneInstancePerTest}
-import player.{AudioPlayer, Song, playlist}
+import player.{AudioPlayer, CurrentChanged, Song, SongAdded, SongRemoved}
 import scalaz.concurrent.Task
 
 class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest with MockitoSugar {
@@ -180,7 +180,7 @@ class PlaylistTest extends FreeSpec with ObservableSpecs with OneInstancePerTest
         "currentSong" in {
           init()
           testExpectedEvents($.events, exact = true)($.removeIndex(1))(
-            Seq(SongRemoved(song2, 1), playlist.CurrentChanged(song3, 2)))
+            Seq(SongRemoved(song2, 1), CurrentChanged(song3, 2)))
         }
       }
     }

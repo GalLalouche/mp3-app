@@ -2,13 +2,12 @@ package player.playlist
 
 import common.rich.func.{ToMoreApplicativeOps, ToMoreFunctorOps}
 import javax.inject.Inject
-import player.{AudioPlayer, Song}
+import player.{AudioPlayer, CurrentChanged, PlayerEvent, Song, SongAdded, SongRemoved}
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 
 import scala.collection.mutable
-
 
 trait Playlist {
   def player: AudioPlayer
@@ -27,7 +26,7 @@ trait Playlist {
   def isLastSong: Boolean = currentIndex == size - 1
   def isFirstSong: Boolean = currentIndex == 0
 
-  def events: Observable[PlaylistEvent]
+  def events: Observable[PlayerEvent]
   def stop: Task[Unit]
 
   def next: Task[Unit]
@@ -78,8 +77,8 @@ object Playlist extends ToBindOps
         _ <- next if _currentIndex < 0
       } yield ()
     }
-    private val observable = Subject[PlaylistEvent]()
-    override def events: Observable[PlaylistEvent] = observable
+    private val observable = Subject[PlayerEvent]()
+    override def events: Observable[PlayerEvent] = observable
     override def stop = player.stop
 
     override def next = {

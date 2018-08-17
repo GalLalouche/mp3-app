@@ -8,8 +8,8 @@ import common.rich.collections.RichSeq._
 import common.rich.func.ToMoreFunctorOps
 import javax.inject.Inject
 import javax.swing.BorderFactory
-import player.Song
-import player.playlist.{CurrentChanged, Playlist, SongAdded, SongRemoved}
+import player.{CurrentChanged, Song, SongAdded, SongRemoved}
+import player.playlist.Playlist
 import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 import ui.SwingEdtScheduler

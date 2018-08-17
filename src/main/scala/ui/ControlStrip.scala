@@ -4,8 +4,8 @@ import comm.RandomSong
 import common.RichTask._
 import common.rich.func.{MoreObservableInstances, ToMoreApplicativeOps, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.playlist.{CurrentChanged, Playlist}
-import player.{AudioPlayer, PlayerPaused, PlayerPlaying, PlayerStopped}
+import player.playlist.Playlist
+import player.{AudioPlayer, CurrentChanged, PlayerPaused, PlayerPlaying, PlayerStopped}
 
 import scala.swing.{Action, BoxPanel, Button, Orientation, Panel}
 
