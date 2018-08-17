@@ -2,20 +2,19 @@ package ui.playlist
 
 import java.awt.Color
 
-import comm.RandomSong
 import common.RichTask._
 import common.rich.collections.RichSeq._
 import common.rich.func.ToMoreFunctorOps
 import javax.inject.Inject
 import javax.swing.BorderFactory
-import player.{CurrentChanged, MutablePlayer, Song, SongAdded, SongRemoved}
+import player.{CurrentChanged, MutablePlayer, Song, SongAdded, SongFetcher, SongRemoved}
 import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 import ui.SwingEdtScheduler
 
 import scala.swing.{BoxPanel, Orientation, Panel}
 
-private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, randomSong: RandomSong) extends Panel
+private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: SongFetcher) extends Panel
     with ToMoreFunctorOps with ToBindOps {
   private val box = new BoxPanel(Orientation.Vertical)
   _contents += box
@@ -51,7 +50,7 @@ private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, randomSong: R
     assert(playlist.isEmpty)
     for {
       _ <- playlist.setVolume(0.0)
-      song <- randomSong.apply
+      song <- songFetcher.apply
       _ <- playlist.add(song)
       _ <- playlist.playCurrentSong
     } yield ()

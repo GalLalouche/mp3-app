@@ -1,11 +1,12 @@
 package player
 
 import common.IOPool
+import javax.inject.Inject
 import rx.lang.scala.{Observable, Subject}
 import scalaz.concurrent.Task
 import scalaz.syntax.{ToBindOps, ToMonadOps}
 
-private class MutablePlayerImpl(
+private class MutablePlayerImpl @Inject()(
     audioPlayer: AudioPlayer,
     var playlist: UpdatablePlaylist,
     songFetcher: SongFetcher,
