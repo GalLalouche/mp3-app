@@ -4,7 +4,7 @@ import rx.lang.scala.Observable
 import scalaz.concurrent.Task
 
 /** Low level API for playing audio. */
-trait AudioPlayer {
+private trait AudioPlayer {
   def setSource(s: Song): Task[Unit]
   def source: Song
 

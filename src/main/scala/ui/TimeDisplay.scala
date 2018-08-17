@@ -2,11 +2,11 @@ package ui
 
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.{AudioPlayer, TimeChange}
+import player.{MutablePlayer, TimeChange}
 
 import scala.swing.Label
 
-private class TimeDisplay @Inject()(player: AudioPlayer) extends Label
+private class TimeDisplay @Inject()(player: MutablePlayer) extends Label
     with ToMoreMonadPlusOps with MoreObservableInstances {
   text = "00:00"
 

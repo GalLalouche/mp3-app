@@ -2,7 +2,6 @@ package player
 
 /** To which songs can be added, and the index changed. */
 private sealed trait UpdatablePlaylist extends Playlist {
-
   def add(s: Song): UpdatablePlaylist
   def setIndex(index: Int): UpdatablePlaylist
   def next: UpdatablePlaylist = setIndex(currentIndex + 1)

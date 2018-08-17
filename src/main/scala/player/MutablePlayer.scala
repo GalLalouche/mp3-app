@@ -29,6 +29,7 @@ trait MutablePlayer {
 
   def stop: Task[Unit]
   def pause: Task[Unit]
+  def togglePause: Task[Unit] = if (isPaused) playCurrentSong else pause
   /** Will try to append a new song if at the end of the playlist. */
   def next: Task[Unit]
   def previous: Task[Unit]

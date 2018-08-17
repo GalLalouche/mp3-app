@@ -194,7 +194,7 @@ class MutablePlayerImplTest extends FreeSpec with ObservableSpecs with MockitoSu
 }
 
 object MutablePlayerImplTest {
-  class FakePlayer extends AudioPlayer with ToFunctorOps {
+  private class FakePlayer extends AudioPlayer with ToFunctorOps {
     var source: Song = _
     private val voidTask: Task[Unit] = Task.now(())
     override def setSource(s: Song): Task[Unit] = Task(source = s).void

@@ -9,7 +9,6 @@ import scala.swing.{Action, BoxPanel, Button, Orientation, Panel}
 
 private class ControlStrip @Inject()(player: MutablePlayer) extends Panel
     with ToMoreApplicativeOps with ToMoreMonadPlusOps with MoreObservableInstances {
-
   private val backwardsButton = Button("⏪") {player.previous unlessM player.isFirstSong fireAndForget()}
   player.events.observeOn(SwingEdtScheduler()).select[CurrentChanged]
       .map(_.index != 0)
