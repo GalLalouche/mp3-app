@@ -5,7 +5,10 @@ import scalaz.concurrent.Task
 
 /** The main API of this package, controls all aspects of the player. */
 trait MutablePlayer {
-  /** By default, all subscriptions and observations run on IOPool. */
+  private def ifInitialized[A](a: => A): A =
+    if (isEmpty) throw new IllegalStateException("Uninitialized playlist")
+    else a
+  /** By default, all observations run on IOPool. Subscriptions aren't because of bugs in RxScala, probably. */
   def events: Observable[PlayerEvent]
   def playlist: Playlist
 
@@ -15,14 +18,14 @@ trait MutablePlayer {
   def playCurrentSong: Task[Unit]
   def add(s: Song): Task[Unit]
   def songs: Seq[Song] = playlist.songs
-  def currentSong = songs(currentIndex)
+  def currentSong: Song = ifInitialized(songs(currentIndex))
 
   def isEmpty: Boolean = playlist.isEmpty
   def size: Int = playlist.size
-  def currentIndex: Int = playlist.currentIndex
+  def currentIndex: Int = ifInitialized(playlist.currentIndex)
 
-  def isLastSong: Boolean = playlist.isLastSong
-  def isFirstSong: Boolean = playlist.isFirstSong
+  def isLastSong: Boolean = ifInitialized(playlist.isLastSong)
+  def isFirstSong: Boolean = ifInitialized(playlist.isFirstSong)
 
   def stop: Task[Unit]
   /** Will try to append a new song if at the end of the playlist. */

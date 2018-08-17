@@ -2,6 +2,7 @@ package player
 
 /** To which songs can be added, and the index changed. */
 private sealed trait UpdatablePlaylist extends Playlist {
+
   def add(s: Song): UpdatablePlaylist
   def setIndex(index: Int): UpdatablePlaylist
   def next: UpdatablePlaylist = setIndex(currentIndex + 1)
@@ -10,10 +11,9 @@ private sealed trait UpdatablePlaylist extends Playlist {
 
 private object UpdatablePlaylist {
   private object EmptyPlaylist extends UpdatablePlaylist {
-    override val songs = Nil
+    override def songs = Nil
     override def currentIndex = throw new UnsupportedOperationException("Empty playlist")
     override def add(s: Song) = new NonEmptyPlaylist(Vector(s), 0)
-    override val size = 0
     override def setIndex(index: Int) = throw new UnsupportedOperationException("Empty playlist")
     override def isLastSong = throw new UnsupportedOperationException("Empty playlist")
     override def isFirstSong = throw new UnsupportedOperationException("Empty playlist")
