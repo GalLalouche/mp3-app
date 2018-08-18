@@ -31,14 +31,13 @@ private class MutablePlayerImpl @Inject()(
     assert(audioPlayer.source == currentSong)
     (audioPlayer.play >| emitStatus()).unlessM(status == Playing)
   }
-  override def add(s: Song): Task[Unit] = {
+  override def add(s: Song): Task[Unit] = for {
+    empty <- Task.delay(isEmpty)
+    _ <- updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
     // TODO add this in ToMoreApplicativeOps
-    val t: Task[Unit] = for {
-      empty <- Task.delay(isEmpty)
-      _ <- audioPlayer.setSource(s) if empty
-    } yield ()
-    t >> updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
-  }
+    _ <- audioPlayer.setSource(s) >| subject.onNext(CurrentChanged(s, 0)) if empty
+  } yield ()
+
   override def add(pkg: PackagedAlbum): Task[Unit] = pkg.songs.toList.map(add).sequenceU.void
   override def stop: Task[Unit] = audioPlayer.stop >| emitStatus
   override def pause: Task[Unit] = audioPlayer.pause >| emitStatus

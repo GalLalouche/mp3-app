@@ -49,7 +49,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
   })
 
   override def setSource(s: Song): Task[Unit] =
-    stop >> trySetSource(s) >| observable.onNext(SongChanged(s))
+    stop >> trySetSource(s)
   override def play: Task[Unit] = Task {
     assert(isPlaying.isFalse)
     if (isPaused) sp.resume() else sp.play()

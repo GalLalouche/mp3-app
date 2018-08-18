@@ -6,7 +6,7 @@ import common.RichTask._
 import common.SwingUtils._
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.{MutablePlayer, SongChanged}
+import player.{CurrentChanged, MutablePlayer}
 
 import scala.swing.{Dimension, Label}
 
@@ -17,9 +17,9 @@ class PosterComponent @Inject()(player: MutablePlayer, posterComm: PosterComm) e
 
   player.events
       .observeOn(IOPool.scheduler)
-      .select[SongChanged]
-      .map(_.newSong)
-      .flatMap(posterComm.poster(_).toObservable(IOPool()))
+      .select[CurrentChanged]
+      .map(_.s)
+      .flatMap(posterComm.poster(_).toObservable)
       .observeOn(SwingEdtScheduler())
       .doOnNext(e => icon = e.toSquareImageIcon(SideLengthInPixels))
       .subscribe()

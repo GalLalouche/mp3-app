@@ -47,5 +47,3 @@ object TimeChange {
   def apply(currentTimeInMicroSeconds: Long, totalTimeInMicroSeconds: Long): TimeChange =
     new TimeChange(currentTimeInMicroSeconds, totalTimeInMicroSeconds)
 }
-
-case class SongChanged(newSong: Song) extends PlayerEvent

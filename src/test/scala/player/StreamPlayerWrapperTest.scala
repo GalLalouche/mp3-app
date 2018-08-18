@@ -21,11 +21,6 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
   when(song.totalLengthInMicroSeconds) thenReturn Long.MaxValue
 
   "Events" - {
-    "setSource emits a SongChanged event" in {
-      testObservableFirstValue($.events.select[SongChanged])($.setSource(song))(
-        _.newSong shouldReturn song)
-    }
-
     // TODO generalize
     def onListen(f: StreamPlayerListener => Unit): Unit = {
       val captor = ArgumentCaptor.forClass(classOf[StreamPlayerListener])

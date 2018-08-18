@@ -41,6 +41,10 @@ class MutablePlayerImplTest extends FreeSpec with ObservableSpecs with MockitoSu
   }
 
   "add" - {
+    "when first: emits a current changed event and sets source (but only after the song was added!)" in {
+      val song = mock[Song]
+      testExpectedEvents($.events)($.add(song))(Seq(SongAdded(song, 0), CurrentChanged(song, 0)))
+    }
     "increases size" in {
       $.add(mock[Song]).unsafePerformSync
       $.size shouldReturn 1
