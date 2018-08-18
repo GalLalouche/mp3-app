@@ -18,6 +18,7 @@ sealed trait Song {
   def totalLengthInMicroSeconds: Long = duration * 1e6.toLong
   // TODO solve this less hackishly
   def formattedLength: String = TimeChange(totalLengthInMicroSeconds, Long.MaxValue).toDoubleDigitDisplay
+  def remotePath: String
 }
 
 case class RemoteSong(
@@ -34,7 +35,7 @@ case class RemoteSong(
     mp3: Option[String],
     flac: Option[String],
 ) extends Song {
-  def path: String = mp3.orElse(flac).get
+  override def remotePath: String = mp3.orElse(flac).get
 }
 
 object RemoteSong extends DefaultJsonProtocol {
@@ -53,5 +54,5 @@ case class LocalSong(
     override val trackGain: Option[Double],
     file: File,
     localPosterPath: File,
-    remotePath: String,
+    override val remotePath: String,
 ) extends Song

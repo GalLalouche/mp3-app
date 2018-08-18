@@ -39,7 +39,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
   private def trySetSource(s: Song): Task[Unit] = Task(try {
     s match {
       case e: LocalSong => sp.open(e.file)
-      case e: RemoteSong => sp.open(new URL(c.path(e.path)))
+      case e: RemoteSong => sp.open(new URL(c.path(e.remotePath)))
     }
     source = s
   } catch {
