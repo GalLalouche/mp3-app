@@ -7,7 +7,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, OneInstancePerTest}
 import player.MutablePlayerImplTest.FakePlayer
 import player.pkg.PackagedAlbum
-import rx.lang.scala.{Observable, Subject}
+import rx.lang.scala.Subject
 import scalaz.concurrent.Task
 import scalaz.syntax.ToFunctorOps
 
@@ -24,7 +24,7 @@ class MutablePlayerImplTest extends FreeSpec with ObservableSpecs with MockitoSu
   private val song2 = mock[Song]
   private val song3 = mock[Song]
   private def init(): Unit = {
-    ($.add(song1) >> $.add(song2) >> $.add(song3) >> $.next).unsafePerformSync
+    ($.add(song1) >> $.add(song2) >> $.add(song3)).unsafePerformSync
   }
 
   "playCurrentSong" - {
@@ -145,6 +145,15 @@ class MutablePlayerImplTest extends FreeSpec with ObservableSpecs with MockitoSu
       testObservableFirstValue($.events.select[CurrentChanged])($.setIndex(1))(_ shouldReturn CurrentChanged(song2, 1))
     }
   }
+
+  "audioPlayer events" - {
+    "Song ended invokes next" in {
+      init()
+      testObservableFirstValue($.events.select[CurrentChanged])(audioPlayer.events.onNext(SongFinished))(
+        _ shouldReturn CurrentChanged(song2, 1))
+      audioPlayer.source shouldReturn song2
+    }
+  }
   //
   //  "removeIndex" - {
   //    "throws on invalid index" in {
@@ -217,7 +226,7 @@ object MutablePlayerImplTest {
     }
     override def pause: Task[Unit] = Task(status = Paused).void
     override def stop: Task[Unit] = Task(status = Stopped).void
-    override def events: Observable[PlayerEvent] = Subject()
+    override val events: Subject[PlayerEvent] = Subject()
     var status: PlayerStatus = _
   }
 }

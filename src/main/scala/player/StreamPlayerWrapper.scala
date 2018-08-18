@@ -31,6 +31,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
         case Status.PAUSED => Some(PlayerPaused)
         case Status.STOPPED => Some(PlayerStopped)
         case Status.PLAYING | Status.RESUMED => Some(PlayerPlaying)
+        case Status.EOM => Some(SongFinished)
         case _ => None
       }).foreach(observable.onNext)
     }

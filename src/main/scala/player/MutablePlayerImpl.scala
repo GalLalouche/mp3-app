@@ -1,7 +1,8 @@
 package player
 
 import common.IOPool
-import common.rich.func.{MoreTraverseInstances, ToMoreApplicativeOps}
+import common.RichTask._
+import common.rich.func.{MoreObservableInstances, MoreTraverseInstances, ToMoreApplicativeOps}
 import javax.inject.Inject
 import player.pkg.PackagedAlbum
 import rx.lang.scala.{Observable, Subject}
@@ -13,7 +14,8 @@ private class MutablePlayerImpl @Inject()(
     var playlist: UpdatablePlaylist,
     songFetcher: SongFetcher,
 ) extends MutablePlayer
-    with ToMonadOps with ToTraverseOps with ToMoreApplicativeOps with MoreTraverseInstances {
+    with ToMonadOps with ToTraverseOps with ToMoreApplicativeOps
+    with MoreTraverseInstances with MoreObservableInstances{
   private def emitStatus() = subject.onNext(StatusChanged(status))
   private def emitCurrentChanged() = subject.onNext(CurrentChanged(currentSong, currentIndex))
   private def updatePlaylist(f: UpdatablePlaylist => UpdatablePlaylist): Task[Unit] =
@@ -23,6 +25,7 @@ private class MutablePlayerImpl @Inject()(
   override val events: Observable[PlayerEvent] = subject.observeOn(IOPool.scheduler)
 
   audioPlayer.events.doOnNext(subject.onNext).subscribe()
+  audioPlayer.events.filter(_ == SongFinished).doOnNext(_ => next.fireAndForget()).subscribe()
 
   override def setIndex(index: Int): Task[Unit] =
     if (index < 0) throw new IndexOutOfBoundsException(s"Invalid index <$index>")

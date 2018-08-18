@@ -43,6 +43,7 @@ class StreamPlayerWrapperTest extends FreeSpec with ObservableSpecs
     "Pause" in checkSingleEventPropagation(Status.PAUSED, PlayerPaused)
     "Play" in checkSingleEventPropagation(Status.PLAYING, PlayerPlaying)
     "Resume" in checkSingleEventPropagation(Status.RESUMED, PlayerPlaying)
+    "Song finished" in checkSingleEventPropagation(Status.EOM, SongFinished)
   }
 
   "setVolume" - {
