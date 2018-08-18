@@ -12,7 +12,7 @@ trait PosterComm {
   def poster(s: Song): Task[BufferedImage]
 }
 object PosterComm {
-  class From @Inject()(communicator: Communicator) extends PosterComm {
+  class From @Inject() private[comm](communicator: Communicator) extends PosterComm {
     override def poster(s: Song): Task[BufferedImage] = s match {
       case e: LocalSong => Task(ImageIO.read(e.localPosterPath))
       case e: RemoteSong =>

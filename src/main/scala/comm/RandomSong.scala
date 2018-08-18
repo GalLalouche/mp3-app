@@ -9,7 +9,7 @@ trait RandomSong extends SongFetcher {
 }
 
 object RandomSong {
-  class From @Inject()(c: Communicator) extends RandomSong {
+  class From @Inject()private[comm](c: Communicator) extends RandomSong {
     override def apply: Task[Song] = c.parseJson[RemoteSong]("data/randomSong/flac")
   }
 }

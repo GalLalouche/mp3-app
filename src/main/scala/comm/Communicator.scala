@@ -14,7 +14,7 @@ trait Communicator {
 }
 
 object Communicator {
-  class From @Inject()(talker: InternetTalker, @ServerAddress host: String) extends Communicator {
+  class From @Inject() private[comm](talker: InternetTalker, @ServerAddress host: String) extends Communicator {
     private val fixedHost = host.mapIf(_.endsWith("/").isFalse).to(_ + "/")
     override def path(p: String): String = fixedHost + p.mapIf(_.startsWith("/")).to(p.tail)
     override def getBytes(p: String): Task[Array[Byte]] = talker.get(path(p))
