@@ -11,5 +11,6 @@ object CommModule extends ScalaModule {
     bind[Communicator].to[Communicator.From]
     bind[SongFetcher].to[RandomSong.From]
     bind[PosterComm].to[PosterComm.From]
+    bind[LyricsComm].to[LyricsComm.From]
   }
 }
