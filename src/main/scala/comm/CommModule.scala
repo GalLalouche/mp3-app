@@ -1,6 +1,6 @@
 package comm
 
-import com.google.inject.Singleton
+import comm.external.ExternalLinksComm
 import net.codingwell.scalaguice.ScalaModule
 import player.SongFetcher
 
@@ -11,6 +11,7 @@ object CommModule extends ScalaModule {
     bind[Communicator].to[Communicator.From]
     bind[SongFetcher].to[RandomSong.From]
     bind[PosterComm].to[PosterComm.From]
+    bind[ExternalLinksComm].to[ExternalLinksComm.From]
     bind[LyricsComm].to[LyricsComm.From]
   }
 }
