@@ -1,5 +1,6 @@
 package player
 
+import common.Percentage
 import rx.lang.scala.Observable
 import scalaz.concurrent.Task
 
@@ -16,4 +17,6 @@ private trait AudioPlayer {
 
   def events: Observable[PlayerEvent]
   def status: PlayerStatus
+
+  def seek(p: Percentage): Task[Unit]
 }

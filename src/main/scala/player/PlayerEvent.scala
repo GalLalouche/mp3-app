@@ -2,6 +2,8 @@ package player
 
 import java.time.Duration
 
+import common.Percentage
+
 sealed trait PlayerEvent
 case class SongAdded(s: Song, index: Int) extends PlayerEvent
 case class CurrentChanged(s: Song, index: Int) extends PlayerEvent
@@ -38,8 +40,7 @@ class TimeChange(private val currentTimeInMicroSeconds: Long, totalTimeInMicroSe
     else s"$hours:${aux(minutes)}:${aux(seconds)}"
   }
 
-  /** A number between 0 and 100. */
-  def percentage: Double = currentTimeInMicroSeconds / totalTimeInMicroSeconds.toDouble
+  def percentage: Percentage = Percentage(currentTimeInMicroSeconds, totalTimeInMicroSeconds)
 }
 object TimeChange {
   val empty: TimeChange = TimeChange(0, 0)

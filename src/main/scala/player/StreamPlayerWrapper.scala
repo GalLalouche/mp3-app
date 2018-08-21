@@ -7,6 +7,7 @@ import java.util.logging.{Level, Logger}
 import comm.Communicator
 import common.rich.func.ToMoreFunctorOps
 import common.rich.primitives.RichBoolean._
+import common.{IOPool, Percentage}
 import javax.inject.Inject
 import main.java.goxr3plus.javastreamplayer.stream.{Status, StreamPlayer, StreamPlayerEvent, StreamPlayerListener}
 import rx.lang.scala.{Observable, Subject}
@@ -24,8 +25,15 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
 
   sp.addStreamPlayerListener(new StreamPlayerListener {
     override def opened(dataSource: scala.Any, properties: util.Map[String, AnyRef]): Unit = ()
-    override def progress(nEncodedBytes: Int, microsecondPosition: Long, pcmData: Array[Byte], properties: util.Map[String, AnyRef]): Unit =
-      observable.onNext(TimeChange(microsecondPosition, source.totalLengthInMicroSeconds))
+    override def progress(nEncodedBytes: Int, microsecondPosition: Long, pcmData: Array[Byte], properties: util.Map[String, AnyRef]): Unit = {
+      // microsecondPosition is bugged after skipping.
+      val currentTimeInMicroseconds = properties.get("mp3.position.microseconds").asInstanceOf[Long]
+      val totalLengthInMicroSeconds = source.totalLengthInMicroSeconds
+      if (currentTimeInMicroseconds > totalLengthInMicroSeconds) // Yey, more bugs!
+        observable.onNext(SongFinished)
+      else
+        observable.onNext(TimeChange(currentTimeInMicroseconds, totalLengthInMicroSeconds))
+    }
     override def statusUpdated(event: StreamPlayerEvent): Unit = {
       (event.getPlayerStatus match {
         case Status.PAUSED => Some(PlayerPaused)
@@ -36,7 +44,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
       }).foreach(observable.onNext)
     }
   })
-  private var volume: Double = _
+  private var volume: Double = 0
   private def trySetSource(s: Song): Task[Unit] = Task(try {
     s match {
       case e: LocalSong => sp.open(e.file)
@@ -62,15 +70,17 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
     sp.setGain(f)
     volume = f
   }
-  override def events: Observable[PlayerEvent] = observable
+  override def events: Observable[PlayerEvent] = observable.observeOn(IOPool.scheduler)
   private def isPlaying: Boolean = sp.isPlaying
   private def isPaused: Boolean = sp.isPaused
   private def isStopped: Boolean = sp.isStopped
   override def status: PlayerStatus = sp.getStatus match {
     case Status.PLAYING | Status.RESUMED | Status.SEEKED | Status.SEEKING | Status.BUFFERING => Playing
-    case Status.STOPPED | Status.EOM | Status.OPENED => Stopped
+    case Status.STOPPED | Status.OPENED | Status.EOM => Stopped
     case Status.PAUSED => Paused
     case Status.INIT => Initial
     case _ => ???
   }
+  // TODO fix volume bullshit in StreamPlayer
+  override def seek(p: Percentage) = Task(sp.seek(p * source.size)) >> setVolume(volume)
 }

@@ -1,13 +1,14 @@
 package ui
 
-import common.RichTask._
 import javax.inject.Inject
 import ui.playlist.PlaylistPanel
+import ui.progress.{ProgressPanel, TimeDisplay}
 
 import scala.swing.{BoxPanel, Dimension, Orientation, Panel}
 
 private class PlayerPanel @Inject()(
     posterComponent: PosterComponent,
+    progressPanel: ProgressPanel,
     timeDisplay: TimeDisplay,
     controlStrip: ControlStrip,
     playlistPanel: PlaylistPanel
@@ -16,11 +17,11 @@ private class PlayerPanel @Inject()(
   _contents += new BoxPanel(Orientation.Vertical) {
     contents ++= Seq(
       posterComponent,
-      timeDisplay,
+      progressPanel,
       controlStrip,
       playlistPanel,
     )
   }
 
-  playlistPanel.start().fireAndForget()
+  //playlistPanel.start().fireAndForget()
 }

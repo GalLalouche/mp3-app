@@ -1,6 +1,7 @@
 package player
 
 import comm.ObservableSpecs
+import common.Percentage
 import common.Regression.regression
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -228,5 +229,6 @@ object MutablePlayerImplTest {
     override def stop: Task[Unit] = Task(status = Stopped).void
     override val events: Subject[PlayerEvent] = Subject()
     var status: PlayerStatus = _
+    override def seek(p: Percentage) = voidTask
   }
 }

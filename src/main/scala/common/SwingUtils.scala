@@ -11,13 +11,13 @@ import scala.swing.Component
 object SwingUtils {
   implicit class RichComponent($: Component) {
     // Because reactions is BS and doesn't work.
-    def onMouseClick(f: => Any): Component = {
+    def onMouseClick(f: MouseEvent => Any): Component = {
       $.peer.addMouseListener(new MouseListener {
         override def mouseExited(e: MouseEvent): Unit = ()
         override def mousePressed(e: MouseEvent): Unit = ()
         override def mouseReleased(e: MouseEvent): Unit = ()
         override def mouseEntered(e: MouseEvent): Unit = ()
-        override def mouseClicked(e: MouseEvent): Unit = f
+        override def mouseClicked(e: MouseEvent): Unit = f(e)
       })
       $
     }

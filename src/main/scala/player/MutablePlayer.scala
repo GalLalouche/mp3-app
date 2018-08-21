@@ -1,5 +1,6 @@
 package player
 
+import common.Percentage
 import player.pkg.PackagedAlbum
 import rx.lang.scala.Observable
 import scalaz.concurrent.Task
@@ -42,4 +43,5 @@ trait MutablePlayer {
   def isStopped: Boolean = status == Stopped
 
   def setVolume(d: Double): Task[Unit]
+  def seek(p: Percentage): Task[Unit]
 }

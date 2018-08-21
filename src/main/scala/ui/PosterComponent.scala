@@ -1,6 +1,7 @@
 package ui
 
 import comm.PosterComm
+import common.rich.RichT._
 import common.IOPool
 import common.RichTask._
 import common.SwingUtils._
@@ -14,6 +15,8 @@ class PosterComponent @Inject()(player: MutablePlayer, posterComm: PosterComm) e
     with ToMoreMonadPlusOps with MoreObservableInstances {
   private val SideLengthInPixels = 500
   preferredSize = new Dimension(SideLengthInPixels, SideLengthInPixels)
+  minimumSize = new Dimension(SideLengthInPixels, SideLengthInPixels)
+  maximumSize = new Dimension(SideLengthInPixels, SideLengthInPixels)
 
   player.events
       .observeOn(IOPool.scheduler)
@@ -24,5 +27,5 @@ class PosterComponent @Inject()(player: MutablePlayer, posterComm: PosterComm) e
       .doOnNext(e => icon = e.toSquareImageIcon(SideLengthInPixels))
       .subscribe()
 
-  this.onMouseClick(player.togglePause.fireAndForget())
+  this.onMouseClick(player.togglePause.fireAndForget().const)
 }
