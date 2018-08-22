@@ -10,7 +10,7 @@ import ui.SwingEdtScheduler
 
 import scala.swing.{BoxPanel, Dimension, Orientation}
 
-class ExternalLinksPanel @Inject()(
+private[ui] class ExternalLinksPanel @Inject()(
     events: Observable[PlayerEvent],
     externalLinksComm: ExternalLinksComm
 ) extends BoxPanel(Orientation.Vertical)

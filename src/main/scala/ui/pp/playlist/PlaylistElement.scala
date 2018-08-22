@@ -1,4 +1,4 @@
-package ui.playlist
+package ui.pp.playlist
 
 import java.awt.{Dimension, Font}
 

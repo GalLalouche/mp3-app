@@ -1,4 +1,4 @@
-package ui.playlist
+package ui.pp.playlist
 
 private sealed trait PlaylistElementEvent {
   def source: PlaylistElement

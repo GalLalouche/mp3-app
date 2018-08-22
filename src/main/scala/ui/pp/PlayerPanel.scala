@@ -1,12 +1,12 @@
-package ui
+package ui.pp
 
 import javax.inject.Inject
-import ui.playlist.PlaylistPanel
+import ui.pp.playlist.PlaylistPanel
 import ui.progress.{ProgressPanel, TimeDisplay}
 
 import scala.swing.{BoxPanel, Dimension, Orientation, Panel}
 
-private class PlayerPanel @Inject()(
+private[ui] class PlayerPanel @Inject()(
     posterComponent: PosterComponent,
     progressPanel: ProgressPanel,
     timeDisplay: TimeDisplay,
@@ -22,6 +22,4 @@ private class PlayerPanel @Inject()(
       playlistPanel,
     )
   }
-
-  //playlistPanel.start().fireAndForget()
 }

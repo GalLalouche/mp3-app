@@ -4,6 +4,7 @@ import java.awt.Dimension
 
 import javax.inject.Inject
 import ui.external.ExternalLinksPanel
+import ui.pp.PlayerPanel
 
 import scala.swing.{BoxPanel, Orientation, Panel}
 

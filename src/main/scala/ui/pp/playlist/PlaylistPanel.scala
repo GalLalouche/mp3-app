@@ -1,4 +1,4 @@
-package ui.playlist
+package ui.pp.playlist
 
 import java.awt.Color
 
@@ -15,7 +15,7 @@ import ui.SwingEdtScheduler
 import scala.swing.ScrollPane.BarPolicy
 import scala.swing.{BoxPanel, Dimension, Orientation, Panel, ScrollPane}
 
-private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: SongFetcher) extends Panel
+private[pp] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: SongFetcher) extends Panel
     with ToMoreFunctorOps with ToBindOps {
   private val box = new BoxPanel(Orientation.Vertical)
   _contents += new ScrollPane {

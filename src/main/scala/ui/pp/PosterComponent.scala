@@ -1,17 +1,18 @@
-package ui
+package ui.pp
 
 import comm.PosterComm
-import common.rich.RichT._
 import common.IOPool
 import common.RichTask._
 import common.SwingUtils._
+import common.rich.RichT._
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}
 import javax.inject.Inject
 import player.{CurrentChanged, MutablePlayer}
+import ui.SwingEdtScheduler
 
 import scala.swing.{Dimension, Label}
 
-class PosterComponent @Inject()(player: MutablePlayer, posterComm: PosterComm) extends Label
+private class PosterComponent @Inject()(player: MutablePlayer, posterComm: PosterComm) extends Label
     with ToMoreMonadPlusOps with MoreObservableInstances {
   private val SideLengthInPixels = 500
   preferredSize = new Dimension(SideLengthInPixels, SideLengthInPixels)

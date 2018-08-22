@@ -1,9 +1,10 @@
-package ui
+package ui.pp
 
 import common.RichTask._
 import common.rich.func.{MoreObservableInstances, ToMoreApplicativeOps, ToMoreMonadPlusOps}
 import javax.inject.Inject
 import player.{CurrentChanged, MutablePlayer, PlayerPaused, PlayerPlaying, PlayerStopped}
+import ui.SwingEdtScheduler
 
 import scala.swing.{Action, BoxPanel, Button, Orientation, Panel}
 

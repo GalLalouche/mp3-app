@@ -13,7 +13,7 @@ import rx.lang.scala.Observable
 
 import scala.swing.{Dimension, Label, ScrollPane}
 
-class LyricsPanel @Inject()(
+private class LyricsPanel @Inject()(
     events: Observable[PlayerEvent],
     lyricsComm: LyricsComm
 ) extends ScrollPane
