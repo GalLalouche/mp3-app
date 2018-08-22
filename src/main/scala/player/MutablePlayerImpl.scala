@@ -43,15 +43,14 @@ private class MutablePlayerImpl @Inject()(
   override def add(pkg: PackagedAlbum): Task[Unit] = pkg.songs.toList.map(add).sequenceU.void
   override def stop: Task[Unit] = audioPlayer.stop >| emitStatus
   override def pause: Task[Unit] = audioPlayer.pause >| emitStatus
-  override def next: Task[Unit] = {
+  private def changeSong(change: Task[Unit]): Task[Unit] = {
     val wasPlaying = status == Playing
-    if (playlist.isLastSong)
-      songFetcher.apply.>>=(add).>>(next)
-    else
-      stop >> updatePlaylist(_.next) >> audioPlayer.setSource(currentSong) >> playCurrentSong.whenM(wasPlaying)
-  } >| emitCurrentChanged()
+    stop >> change >> audioPlayer.setSource(currentSong) >> playCurrentSong.whenM(wasPlaying) >| emitCurrentChanged()
+  }
+  override def next: Task[Unit] =
+    if (playlist.isLastSong) songFetcher.apply.>>=(add).>>(next) else changeSong(updatePlaylist(_.next))
 
-  override def previous: Task[Unit] = updatePlaylist(_.previous) >| emitCurrentChanged()
+  override def previous: Task[Unit] = changeSong(updatePlaylist(_.previous))
   override def status: PlayerStatus = audioPlayer.status
 
   override def setVolume(d: Double) = audioPlayer.setVolume(d)
