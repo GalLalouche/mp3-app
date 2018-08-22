@@ -18,7 +18,7 @@ private class PlaylistElement(val s: Song) extends BorderPanel {
 
   private val fullText = s"<html><b>${s.title}</b> by ${s.artistName} (${s.albumName}, ${s.track}, ${s.formattedLength}, ${s.bitrate}kbps)</html>"
   border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
-  preferredSize = new Dimension(600, 35)
+  preferredSize = new Dimension(400, 35)
   add(
     new BoxPanel(Orientation.Horizontal) {
       contents += HStrut(5)
@@ -41,12 +41,8 @@ private class PlaylistElement(val s: Song) extends BorderPanel {
     }, BorderPanel.Position.East)
 
   revalidate()
-  def highlight(): Unit = {
-    border = BorderFactory.createBevelBorder(BevelBorder.LOWERED)
-  }
-  def unHighlight(): Unit = {
-    border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
-  }
+  def highlight(): Unit = border = BorderFactory.createBevelBorder(BevelBorder.LOWERED)
+  def unHighlight(): Unit = border = BorderFactory.createBevelBorder(BevelBorder.RAISED)
   tooltip = fullText
 }
 

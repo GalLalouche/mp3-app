@@ -12,12 +12,18 @@ import scalaz.concurrent.Task
 import scalaz.syntax.ToBindOps
 import ui.SwingEdtScheduler
 
-import scala.swing.{BoxPanel, Orientation, Panel}
+import scala.swing.ScrollPane.BarPolicy
+import scala.swing.{BoxPanel, Dimension, Orientation, Panel, ScrollPane}
 
 private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: SongFetcher) extends Panel
     with ToMoreFunctorOps with ToBindOps {
   private val box = new BoxPanel(Orientation.Vertical)
-  _contents += box
+  _contents += new ScrollPane {
+    contents = box
+    preferredSize = new Dimension(700, 400)
+    verticalScrollBarPolicy = BarPolicy.Always
+    horizontalScrollBarPolicy = BarPolicy.AsNeeded
+  }
   ignoreRepaint = false
   border = BorderFactory.createLineBorder(Color.BLACK)
 
@@ -27,6 +33,7 @@ private[ui] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: 
   private def removeWith(s: Song): Unit = {
     box.peer.remove(elementWith(s).peer)
   }
+
   playlist.events.observeOn(SwingEdtScheduler()).doOnNext({
     case SongAdded(s, _) =>
       val element = new PlaylistElement(s)
