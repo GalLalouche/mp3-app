@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.4",
   "org.scalaz" %% "scalaz-core" % scalazVersion,
   "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
-  "com.github.goxr3plus" % "java-stream-player" % "1.1.1", // 1.1.1 is my fixed version
+  "com.github.goxr3plus" % "java-stream-player" % "1.1.1" changing(), // 1.1.1 is my fixed version
   "org.scalaj" %% "scalaj-http" % "2.4.1",
   "io.spray" %%  "spray-json" % "1.3.4",
   "com.google.inject" % "guice" % "4.2.0",
@@ -34,5 +34,6 @@ libraryDependencies ++= Seq(
   "my.net.jthink" % "jaudiotagger" % "2.2.6-SNAPSHOT",
 )
 
+mainClass in assembly := Some("ui.UIRunner")
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4")
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
