@@ -44,7 +44,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
       }).foreach(observable.onNext)
     }
   })
-  private var volume: Double = 0
+  var volume: Percentage = 0.0
   private def trySetSource(s: Song): Task[Unit] = Task(try {
     s match {
       case e: LocalSong => sp.open(e.file)
@@ -62,13 +62,12 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
   override def play: Task[Unit] = Task {
     assert(isPlaying.isFalse)
     if (isPaused) sp.resume() else sp.play()
-    sp.setGain(volume)
+    sp.setGain(volume.value)
   } unlessM isPlaying
   override def pause: Task[Unit] = Task(sp.pause()) unlessM isPaused
-  override def setVolume(f: Double): Task[Unit] = Task {
-    require(f >= 0 && f <= 1)
-    sp.setGain(f)
-    volume = f
+  override def setVolume(p: Percentage): Task[Unit] = Task {
+    sp.setGain(p.value)
+    volume = p
   }
   override def events: Observable[PlayerEvent] = observable.observeOn(IOPool.scheduler)
   private def isPlaying: Boolean = sp.isPlaying

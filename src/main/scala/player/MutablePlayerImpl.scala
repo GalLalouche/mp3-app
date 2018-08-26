@@ -53,6 +53,7 @@ private class MutablePlayerImpl @Inject()(
   override def previous: Task[Unit] = changeSong(updatePlaylist(_.previous))
   override def status: PlayerStatus = audioPlayer.status
 
-  override def setVolume(d: Double) = audioPlayer.setVolume(d)
+  override def setVolume(p: Percentage) = audioPlayer.setVolume(p)
+  override def volume: Percentage = audioPlayer.volume
   override def seek(p: Percentage) = audioPlayer.seek(p)
 }

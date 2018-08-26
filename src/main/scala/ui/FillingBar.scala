@@ -1,4 +1,4 @@
-package ui.progress
+package ui
 
 import java.awt.{Color, Polygon}
 
@@ -8,7 +8,7 @@ import rx.lang.scala.{Observable, Subject}
 
 import scala.swing.{Component, Graphics2D}
 
-private class FillingBar extends Component {
+private[ui] class FillingBar extends Component {
   private var percentage = Percentage(0)
   def update(percentage: Percentage): Unit = synchronized {
     this.percentage = percentage

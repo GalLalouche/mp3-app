@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import common.RichTask._
 import common.rich.func.{MoreObservableInstances, ToMoreMonadPlusOps}
 import player.{MutablePlayer, TimeChange}
-import ui.SwingEdtScheduler
+import ui.{FillingBar, SwingEdtScheduler}
 
 import scala.swing.{Dimension, Panel}
 

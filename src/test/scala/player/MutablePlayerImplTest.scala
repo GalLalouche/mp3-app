@@ -220,7 +220,8 @@ object MutablePlayerImplTest {
     var source: Song = _
     private val voidTask: Task[Unit] = Task.now(())
     override def setSource(s: Song): Task[Unit] = Task(source = s).void
-    override def setVolume(f: Double): Task[Unit] = voidTask
+    override def setVolume(p: Percentage): Task[Unit] = voidTask
+    override def volume = 0.0
     override def play: Task[Unit] = {
       assert(source != null)
       Task(status = Playing).void
