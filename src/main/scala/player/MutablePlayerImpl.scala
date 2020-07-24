@@ -24,11 +24,13 @@ private class MutablePlayerImpl @Inject()(
   override val events: Observable[PlayerEvent] = subject.observeOn(IOPool.scheduler)
 
   audioPlayer.events.doOnNext(subject.onNext).subscribe()
-  audioPlayer.events.filter(_ == SongFinished).doOnNext(_ => next.unsafePerformSync).subscribe()
+  audioPlayer.events.filter(_ == SongFinished)
+      .doOnNext(_ => next(startPlaying = true).unsafePerformSync)
+      .subscribe()
 
   override def setIndex(index: Int): Task[Unit] =
     if (index < 0) throw new IndexOutOfBoundsException(s"Invalid index <$index>")
-    else stop >> updatePlaylist(_ setIndex index) >| emitCurrentChanged()
+    else stop >> updatePlaylist(_ setIndex index) >> audioPlayer.setSource(currentSong) >| emitCurrentChanged()
   override def playCurrentSong: Task[Unit] = {
     assert(audioPlayer.source == currentSong)
     (audioPlayer.play >| emitStatus()).unlessM(status == Playing)
@@ -37,21 +39,28 @@ private class MutablePlayerImpl @Inject()(
     empty <- Task.delay(isEmpty)
     _ <- updatePlaylist(_ add s) >| subject.onNext(SongAdded(s, currentIndex))
     // TODO add this in ToMoreApplicativeOps
-    _ <- audioPlayer.setSource(s) >| subject.onNext(CurrentChanged(s, 0)) if empty
+    _ <- audioPlayer.setSource(s) >| subject.onNext(PlayerInitialized) >| subject.onNext(CurrentChanged(s, 0)) if empty
   } yield ()
 
   override def add(pkg: PackagedAlbum): Task[Unit] = pkg.songs.toList.map(add).sequenceU.void
   override def stop: Task[Unit] = audioPlayer.stop >| emitStatus
   override def pause: Task[Unit] = audioPlayer.pause >| emitStatus
-  private def changeSong(change: Task[Unit]): Task[Unit] = {
-    val wasPlaying = status == Playing
-    stop >> change >> audioPlayer.setSource(currentSong) >> playCurrentSong.whenM(wasPlaying) >| emitCurrentChanged()
+  private def changeSongToCurrent(change: Task[Unit], startPlaying: Boolean): Task[Unit] = {
+    stop >> change >> audioPlayer.setSource(currentSong) >> playCurrentSong.whenM(startPlaying) >|
+        emitCurrentChanged()
   }
+  private def next(startPlaying: Boolean): Task[Unit] =
+    if (playlist.isLastSong) songFetcher.apply.>>=(add).>>(next)
+    else changeSongToCurrent(updatePlaylist(_.next), startPlaying)
   override def next: Task[Unit] =
-    if (playlist.isLastSong) songFetcher.apply.>>=(add).>>(next) else changeSong(updatePlaylist(_.next))
+    if (playlist.isLastSong) songFetcher.apply.>>=(add).>>(next)
+    else changeSongToCurrent(updatePlaylist(_.next), status == Playing)
 
-  override def previous: Task[Unit] = changeSong(updatePlaylist(_.previous))
-  override def status: PlayerStatus = audioPlayer.status
+  override def previous: Task[Unit] = changeSongToCurrent(updatePlaylist(_.previous), status == Playing)
+  override def status: PlayerStatus = audioPlayer.status match {
+    case EndOfSong => Playing
+    case e => e
+  }
 
   override def setVolume(p: Percentage) = audioPlayer.setVolume(p)
   override def volume: Percentage = audioPlayer.volume

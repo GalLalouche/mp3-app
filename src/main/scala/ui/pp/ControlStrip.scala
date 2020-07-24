@@ -5,7 +5,8 @@ import java.awt.Font
 import common.RichTask._
 import common.rich.func.{MoreObservableInstances, ToMoreApplicativeOps, ToMoreMonadPlusOps}
 import javax.inject.Inject
-import player.{CurrentChanged, MutablePlayer, PlayerPaused, PlayerPlaying, PlayerStopped}
+import player.{CurrentChanged, MutablePlayer, PlayerInitialized, PlayerPaused, PlayerPlaying, PlayerStopped}
+import scalaz.std.VectorInstances
 import ui.SwingEdtScheduler
 
 import scala.swing.Swing.HStrut
@@ -15,7 +16,7 @@ private class ControlStrip @Inject()(
     volumeControl: VolumeControl,
     player: MutablePlayer,
 ) extends Panel
-    with ToMoreApplicativeOps with ToMoreMonadPlusOps with MoreObservableInstances {
+    with ToMoreApplicativeOps with ToMoreMonadPlusOps with MoreObservableInstances with VectorInstances {
   private val backwardsButton = Button("⏪") {player.previous unlessM player.isFirstSong fireAndForget()}
   player.events.observeOn(SwingEdtScheduler()).select[CurrentChanged]
       .map(_.index != 0)
@@ -24,7 +25,7 @@ private class ControlStrip @Inject()(
 
   val playButton = Button("▶/❚❚") {???}
   player.events.observeOn(SwingEdtScheduler()).doOnNext {
-    case PlayerStopped | PlayerPaused =>
+    case PlayerInitialized | PlayerStopped | PlayerPaused =>
       playButton.action = Action.apply("▶") {
         assert(player.isPaused || player.isStopped)
         player.playCurrentSong.fireAndForget()
@@ -37,7 +38,6 @@ private class ControlStrip @Inject()(
     case _ => ()
   }.subscribe()
   _contents += new BoxPanel(Orientation.Horizontal) {
-    font = new Font("Helvetica", Font.BOLD, 16)
     contents ++= Seq(
       backwardsButton,
       playButton,
@@ -48,5 +48,6 @@ private class ControlStrip @Inject()(
       HStrut(5),
       volumeControl,
     )
+    contents.toVector.select[Button].foreach(_.font = new Font("Helvetica", Font.BOLD, 16))
   }
 }

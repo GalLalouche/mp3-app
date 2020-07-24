@@ -39,7 +39,7 @@ private[pp] class PlaylistPanel @Inject()(playlist: MutablePlayer, songFetcher: 
       val element = new PlaylistElement(s)
       element.events.doOnNext({
         case PlayElement(source) =>
-          (playlist.setIndex(indexOf(source)) >> playlist.stop >> playlist.playCurrentSong).fireAndForget()
+          (playlist.setIndex(indexOf(source)) >> playlist.playCurrentSong).fireAndForget()
         case RemoveElement(source) => ???
       }).subscribe()
       element +=: box.contents

@@ -2,6 +2,7 @@ package player.pkg
 
 import java.io.{File, FileInputStream}
 
+import common.rich.RichT._
 import common.rich.collections.RichTraversableOnce._
 import common.rich.path.Directory
 import common.rich.path.RichFile._
@@ -21,9 +22,9 @@ private class AlbumPackagerImpl private[pkg](dir: Directory) extends AlbumPackag
       val poster =
         outputDir.files.filter(e => e.nameWithoutExtension == "folder" && Set("png", "jpg")(e.extension)).single
       val songs = outputDir.files
-          .filter(_.name != poster.name)
-          .filter(_.extension != "json")
+          .filter(_.extension |> Set("mp3", "flac"))
           .map(file => SongParser(file, poster, json(file.name).asInstanceOf[JsString].value))
+          .sortBy(_.track)
       PackagedAlbum(songs)
     } finally {
       fis.close()

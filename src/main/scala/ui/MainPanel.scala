@@ -28,7 +28,7 @@ private class MainPanel @Inject()(
       }
     false
   })
-  preferredSize = new Dimension(1920, 1000)
+  preferredSize = new Dimension(1500, 1000)
   _contents += new BoxPanel(Orientation.Horizontal) {
     contents ++= Seq(
       playerPanel,

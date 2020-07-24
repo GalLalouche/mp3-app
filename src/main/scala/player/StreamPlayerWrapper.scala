@@ -27,7 +27,9 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
     override def opened(dataSource: scala.Any, properties: util.Map[String, AnyRef]): Unit = ()
     override def progress(nEncodedBytes: Int, microsecondPosition: Long, pcmData: Array[Byte], properties: util.Map[String, AnyRef]): Unit = {
       // microsecondPosition is bugged after skipping.
-      val currentTimeInMicroseconds = properties.get("mp3.position.microseconds").asInstanceOf[Long]
+      val currentTimeInMicroseconds =
+        Math.max(properties.get("mp3.position.microseconds").asInstanceOf[Long], microsecondPosition)
+
       val totalLengthInMicroSeconds = source.totalLengthInMicroSeconds
       if (currentTimeInMicroseconds > totalLengthInMicroSeconds) // Yey, more bugs!
         observable.onNext(SongFinished)
@@ -44,7 +46,7 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
       }).foreach(observable.onNext)
     }
   })
-  var volume: Percentage = 0.0
+  var volume: Percentage = 0.2
   private def trySetSource(s: Song): Task[Unit] = Task(try {
     s match {
       case e: LocalSong => sp.open(e.file)
@@ -75,9 +77,10 @@ private class StreamPlayerWrapper private[player](c: Communicator, sp: StreamPla
   private def isStopped: Boolean = sp.isStopped
   override def status: PlayerStatus = sp.getStatus match {
     case Status.PLAYING | Status.RESUMED | Status.SEEKED | Status.SEEKING | Status.BUFFERING => Playing
-    case Status.STOPPED | Status.OPENED | Status.EOM => Stopped
+    case Status.STOPPED | Status.OPENED => Stopped
     case Status.PAUSED => Paused
     case Status.INIT => Initial
+    case Status.EOM => EndOfSong
     case _ => ???
   }
   // TODO fix volume bullshit in StreamPlayer

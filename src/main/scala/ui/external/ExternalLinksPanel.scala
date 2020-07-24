@@ -8,18 +8,22 @@ import player.{CurrentChanged, PlayerEvent}
 import rx.lang.scala.Observable
 import ui.SwingEdtScheduler
 
-import scala.swing.{BoxPanel, Dimension, Orientation}
+import scala.swing.{BoxPanel, Dimension, Orientation, Panel}
 
 private[ui] class ExternalLinksPanel @Inject()(
     events: Observable[PlayerEvent],
     externalLinksComm: ExternalLinksComm
-) extends BoxPanel(Orientation.Vertical)
+) extends Panel
     with ToMoreMonadPlusOps with MoreObservableInstances {
-  preferredSize = new Dimension(500, 1000)
   private val artistLinks = new ExternalLinksAux
   private val albumLinks = new ExternalLinksAux
-  contents += artistLinks
-  contents += albumLinks
+  _contents += new BoxPanel(Orientation.Vertical) {
+    preferredSize = new Dimension(350, 500)
+    contents ++= Seq(
+      artistLinks,
+      albumLinks,
+    )
+  }
 
   events.select[CurrentChanged]
       .map(_.s)
@@ -29,5 +33,10 @@ private[ui] class ExternalLinksPanel @Inject()(
         artistLinks.update(el.artistLinks)
         albumLinks.update(el.albumLinks)
         validate()
+        revalidate()
+        repaint()
+        validate()
+        revalidate()
+        repaint()
       }).subscribe()
 }

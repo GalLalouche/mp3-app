@@ -38,5 +38,11 @@ private class ExternalLinksAux extends BoxPanel(Orientation.Vertical) {
       font = new Font("SansSerif", Font.BOLD, 16)
     }
     contents ++= links.links.map(editorPane)
+    validate()
+    revalidate()
+    repaint()
+    validate()
+    revalidate()
+    repaint()
   }
 }

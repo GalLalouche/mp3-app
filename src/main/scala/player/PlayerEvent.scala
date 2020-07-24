@@ -14,6 +14,7 @@ object SongFinished extends PlayerEvent
 object PlayerStopped extends PlayerEvent
 object PlayerPaused extends PlayerEvent
 object PlayerPlaying extends PlayerEvent
+object PlayerInitialized extends PlayerEvent
 
 class TimeChange(private val currentTimeInMicroSeconds: Long, totalTimeInMicroSeconds: Long) extends PlayerEvent {
   def diffFrom(other: TimeChange): Duration =
